@@ -44,4 +44,7 @@ public class EstimatedState {
 
     }
 
+    public List<Double> getAe() {
+        return ae;
+    }
 }
