@@ -292,6 +292,7 @@ public class Estimator {
                 xi=xi+HTRI.getColumnAndValues().get(n).getValue()*
                         state.getRes().get(HTRI.getColumnAndValues().get(n).getColumn());
 
+
             }
 
 
