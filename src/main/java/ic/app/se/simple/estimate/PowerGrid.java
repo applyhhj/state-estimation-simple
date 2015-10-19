@@ -24,6 +24,8 @@ public class PowerGrid {
 
     private MatrixHTH matrixHTH;
 
+    private EstimatedState state;
+
     public PowerGrid(){
 
         branchTable=new BranchTable();
@@ -60,4 +62,23 @@ public class PowerGrid {
 
     }
 
+    public MeasurementTable getMeasurementTable() {
+        return measurementTable;
+    }
+
+    public EstimatedState getState() {
+        return state;
+    }
+
+    public BusNumbers getBusNumbers() {
+        return busNumbers;
+    }
+
+    public MatrixY getMatrixY() {
+        return matrixY;
+    }
+
+    public BranchTable getBranchTable() {
+        return branchTable;
+    }
 }

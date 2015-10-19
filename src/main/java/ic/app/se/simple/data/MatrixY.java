@@ -23,10 +23,12 @@ public class MatrixY {
 
     private List<JJY> jjyList;
 
+//    start address
     private List<Integer> IY;
 
     private List<JYL> jylList;
 
+//    start address
     private List<Integer> IYL;
 
     private double[] GII;
@@ -243,6 +245,7 @@ public class MatrixY {
 
     }
 
+//    to get the element use the internal number-1
     public Double getGIJ(int i,int j){
 
         if (i==j){

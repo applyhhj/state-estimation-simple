@@ -47,4 +47,16 @@ public class EstimatedState {
     public List<Double> getAe() {
         return ae;
     }
+
+    public List<Double> getVe() {
+        return ve;
+    }
+
+    public List<Double> getX() {
+        return x;
+    }
+
+    public List<Double> getRes() {
+        return res;
+    }
 }

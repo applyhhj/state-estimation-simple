@@ -272,15 +272,33 @@ public class Utils {
     //  we can not get row number from result, so if there is any sparse element it will be ignored.
     public static void printGaussEliminationResult(List<ColumnAndValue> result) {
 
+        int i=0;
+
         for (int j = 0; j < result.size(); j++) {
 
             if (result.get(j).getColumn() == 0) {
 
                 System.out.print("\n");
 
-            }
+                System.out.printf("%9.2f,", result.get(j).getValue());
 
-            System.out.printf("%9.2f,", result.get(j).getValue());
+                i=1;
+
+            }else {
+
+                while (result.get(j).getColumn() > i) {
+
+                    System.out.print("         ,");
+
+                    i++;
+
+                }
+
+                System.out.printf("%9.2f,", result.get(j).getValue());
+
+                i++;
+
+            }
 
         }
 
