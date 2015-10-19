@@ -1,6 +1,11 @@
 package ic.app.se.simple.estimate;
 
+import ic.app.se.simple.common.Constants;
+import ic.app.se.simple.common.SparseMatrix;
 import ic.app.se.simple.data.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hjh on 15-10-19.
@@ -29,6 +34,19 @@ public class Estimator {
 
     private BranchTable branchTable;
 
+    private List<Integer> bdm;
+
+    private List<Double> bd;
+
+    private double jx;
+
+    private double jxb;
+
+    private List<Double> x;
+
+    private SparseMatrix HTRI;
+
+
     public Estimator(PowerGrid powerGrid){
 
         this.powerGrid=powerGrid;
@@ -45,11 +63,23 @@ public class Estimator {
 
         this.branchTable=powerGrid.getBranchTable();
 
+        bdm=new ArrayList<Integer>();
+
+        bd=new ArrayList<Double>();
+
+        jx=0;
+
+        jxb=0;
+
+        x=new ArrayList<Double>();
+
+        this.HTRI=powerGrid.getMatrixH().getHTRI();
+
     }
 
     public void estimate(){
 
-        it=1;
+        it=0;
 
         kp=false;
 
@@ -58,6 +88,8 @@ public class Estimator {
         while (it++<itLimit){
 
             kpq=0;
+
+            computeResidual();
 
 
 
@@ -174,11 +206,94 @@ public class Estimator {
 
                 }else {
 
+                    for (int i = Y.getIY().get(iint); i < Y.getIY().get(iint+1); i++) {
 
+                        jint=Y.getJjyList().get(i).getJ();
+
+                        vi=state.getVe().get(iint);
+
+                        vj=state.getVe().get(jint);
+
+                        thetaij=state.getAe().get(iint)-state.getAe().get(jint);
+
+                        sinij=Math.sin(thetaij);
+
+                        cosij=Math.cos(thetaij);
+
+                        G=Y.getJjyList().get(i).getGIJ();
+
+                        B=Y.getJjyList().get(i).getBIJ();
+
+                        if (type==3){
+
+                            h=h+vi*vj*(G*sinij-B*cosij);
+
+                        }else {
+
+                            h=h+vi*vj*(G*cosij+B*sinij);
+
+                        }
+
+                    }
 
                 }
 
             }
+
+            state.getRes().set(n,measurementTable.getZ()[n]-h);
+
+        }
+
+    }
+
+//    simple bad data recognition program
+    private void zeroResidualRecognition(){
+
+        double r;
+
+        bd.clear();
+
+        bdm.clear();
+
+        for (int i = 0; i < state.getRes().size(); i++) {
+
+            r=state.getRes().get(i);
+
+            jxb=jxb+r*r;
+
+            if (Math.abs(r)< Constants.ESTIMATOR.err){
+
+                jx=jx+r*r;
+
+            }else {
+
+                bdm.add(i);
+
+                bd.add(r);
+
+                state.getRes().set(i,0.0);
+
+            }
+
+        }
+
+    }
+
+    private void computeX(){
+
+        double xi;
+
+        for (int m = 0; m <HTRI.getRowStartAddress().size()-1; m++) {
+
+            xi=0;
+
+            for (int n = HTRI.getRowStartAddress().get(m); n < HTRI.getRowStartAddress().get(m+1); n++) {
+
+                xi=xi+HTRI.getColumnAndValues().get(n).getValue()*
+                        state.getRes().get(HTRI.getColumnAndValues().get(n).getColumn());
+
+            }
+
 
         }
 

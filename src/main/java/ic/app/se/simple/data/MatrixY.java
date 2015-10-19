@@ -35,6 +35,12 @@ public class MatrixY {
 
     private double[] BII;
 
+//    r,c is the size of the matrix
+    private int r;
+
+//    currently we set c to the max column number in jjyList
+    private int c;
+
     public MatrixY(BranchTable branchTable, BusNumbers busNumbers){
 
         KPQ=1;
@@ -243,6 +249,28 @@ public class MatrixY {
 
         }
 
+        setRC();
+
+    }
+
+    private void setRC(){
+
+        r=IY.size()-1;
+
+        int jmax=Integer.MIN_VALUE;
+
+        for (int i = 0; i < jjyList.size(); i++) {
+
+            if (jmax<jjyList.get(i).getJ()){
+
+                jmax=jjyList.get(i).getJ();
+
+            }
+
+        }
+
+        c=jmax+1;
+
     }
 
 //    to get the element use the internal number-1
@@ -401,5 +429,29 @@ public class MatrixY {
 
     public int getKPQ() {
         return KPQ;
+    }
+
+    public int getC() {
+        return c;
+    }
+
+    public int getR() {
+        return r;
+    }
+
+    public List<Integer> getIY() {
+        return IY;
+    }
+
+    public List<Integer> getIYL() {
+        return IYL;
+    }
+
+    public List<JJY> getJjyList() {
+        return jjyList;
+    }
+
+    public List<JYL> getJylList() {
+        return jylList;
     }
 }

@@ -81,4 +81,8 @@ public class PowerGrid {
     public BranchTable getBranchTable() {
         return branchTable;
     }
+
+    public MatrixH getMatrixH() {
+        return matrixH;
+    }
 }

@@ -192,4 +192,11 @@ public class SparseMatrix {
         this.symmetry = symmetry;
     }
 
+    public void setColumnAndValues(List<ColumnAndValue> columnAndValues) {
+        this.columnAndValues = columnAndValues;
+    }
+
+    public void setRowStartAddress(List<Integer> rowStartAddress) {
+        this.rowStartAddress = rowStartAddress;
+    }
 }

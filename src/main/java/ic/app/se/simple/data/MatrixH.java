@@ -1,5 +1,7 @@
 package ic.app.se.simple.data;
 
+import ic.app.se.simple.common.ColumnAndValue;
+import ic.app.se.simple.common.SparseMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +21,13 @@ public class MatrixH {
 
     private List<Integer> MH;
 
+//    HT row
     private List<Integer> IHT;
 
+//    column
     private List<Integer> MIHT;
 
+//    value
     private List<Double> MHT;
 
     private BranchTable branchTable;
@@ -32,6 +37,8 @@ public class MatrixH {
     private MeasurementTable measurementTable;
 
     private MatrixY matrixY;
+
+    private SparseMatrix HTRI;
 
     private int c;
 
@@ -59,6 +66,8 @@ public class MatrixH {
 
         MHT=new ArrayList<Double>();
 
+        HTRI=new SparseMatrix();
+
         computeHMatrix();
 
         computeHTMatrix();
@@ -69,7 +78,7 @@ public class MatrixH {
 
         printHMatrix();
 
-        System.out.print("-----------------\n\n");
+        System.out.print("----------------\n\n");
 
     }
 
@@ -324,6 +333,32 @@ public class MatrixH {
 
     }
 
+    private void computeHTRI(){
+
+        HTRI.getColumnAndValues().clear();
+
+        HTRI.getRowStartAddress().clear();
+
+        HTRI.getRowStartAddress().addAll(IHT);
+
+        double riv;
+
+        for (int i = 0; i < MHT.size(); i++) {
+
+            riv=measurementTable.getSigma()[MIHT.get(i)];
+
+            riv=1/riv*riv;
+
+            HTRI.getColumnAndValues().add(new ColumnAndValue(MIHT.get(i),MHT.get(i)*riv));
+
+        }
+
+    }
+
+    public SparseMatrix getHTRI() {
+        return HTRI;
+    }
+
     private int getBusOutNumber(int i){
 
         return busNumbers.getTOI().get(measurementTable.getLocation()[i]);
@@ -413,6 +448,7 @@ public class MatrixH {
         public void setB(double b) {
             B = b;
         }
+
     }
 
     public void printHMatrix(){

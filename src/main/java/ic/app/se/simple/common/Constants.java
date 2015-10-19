@@ -12,4 +12,10 @@ public abstract class Constants {
         public static final int BRANCH_SECTION_NUMBER_OF_COLUMN=21;
         public static final int MEASUREMENT_SECTION_NUMBER_OF_COLUMN=5;
     }
+
+    public abstract class ESTIMATOR{
+
+        public static final double err=1e-1;
+
+    }
 }
