@@ -40,6 +40,8 @@ public class MatrixH {
 
     private SparseMatrix HTRI;
 
+    private SparseMatrix HTRIH;
+
     private int c;
 
     private int r;
@@ -67,6 +69,8 @@ public class MatrixH {
         MHT=new ArrayList<Double>();
 
         HTRI=new SparseMatrix();
+
+        HTRIH=new SparseMatrix();
 
         computeHMatrix();
 

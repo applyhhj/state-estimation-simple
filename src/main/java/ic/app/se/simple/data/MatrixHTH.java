@@ -15,6 +15,8 @@ public class MatrixHTH {
 
     private MatrixH matrixH;
 
+    private SparseMatrix HTRI;
+
     private int NOB;
 
     public MatrixHTH(MatrixH matrixH, int NOB){
@@ -22,6 +24,8 @@ public class MatrixHTH {
         this.matrixH=matrixH;
 
         this.NOB=NOB;
+
+        this.HTRI=matrixH.getHTRI();
 
         matrix=new SparseMatrix();
 
@@ -87,6 +91,36 @@ public class MatrixHTH {
 
         }
         
+    }
+
+    private void computeHTRIH(){
+
+        for (int i = 0; i < matrix.getRowStartAddress().size() - 1; i++) {
+
+            for (int j = matrix.getRowStartAddress().get(i); j < matrix.getRowStartAddress().get(i + 1); j++) {
+
+                matrix.getColumnAndValues().get(j).setValue(getHTRIHElement(i,j));
+
+            }
+
+        }
+
+    }
+
+    private double getHTRIHElement(int i,int j){
+
+        int ks=HTRI.getRowStartAddress().get(i);
+
+        int ke=HTRI.getRowStartAddress().get(i+1);
+
+        int ls=matrixH.
+
+        for (int k = ; k <HTRI.getRowStartAddress().get(i+1) ; k++) {
+
+
+
+        }
+
     }
 
     private void insertToSortedArray(int e,List<Integer> arr){

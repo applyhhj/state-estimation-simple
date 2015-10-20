@@ -283,6 +283,10 @@ public class Estimator {
 
         double xi;
 
+        double v0=measurementTable.getV0();
+
+        x.clear();
+
         for (int m = 0; m <HTRI.getRowStartAddress().size()-1; m++) {
 
             xi=0;
@@ -295,6 +299,7 @@ public class Estimator {
 
             }
 
+            x.add(xi/v0/v0);
 
         }
 
