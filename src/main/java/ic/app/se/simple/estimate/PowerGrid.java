@@ -85,4 +85,8 @@ public class PowerGrid {
     public MatrixH getMatrixH() {
         return matrixH;
     }
+
+    public MatrixHTH getMatrixHTH() {
+        return matrixHTH;
+    }
 }

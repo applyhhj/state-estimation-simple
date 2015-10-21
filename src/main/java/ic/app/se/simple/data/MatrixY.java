@@ -454,4 +454,8 @@ public class MatrixY {
     public List<JYL> getJylList() {
         return jylList;
     }
+
+    public void setKPQ(int KPQ) {
+        this.KPQ = KPQ;
+    }
 }

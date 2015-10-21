@@ -40,8 +40,6 @@ public class MatrixH {
 
     private SparseMatrix HTRI;
 
-    private SparseMatrix HTRIH;
-
     private int c;
 
     private int r;
@@ -70,11 +68,11 @@ public class MatrixH {
 
         HTRI=new SparseMatrix();
 
-        HTRIH=new SparseMatrix();
-
         computeHMatrix();
 
         computeHTMatrix();
+
+        computeHTRI();
 
         printHTMatrix();
 
@@ -349,6 +347,7 @@ public class MatrixH {
 
         for (int i = 0; i < MHT.size(); i++) {
 
+//            sigma should be set before this computation
             riv=measurementTable.getSigma()[MIHT.get(i)];
 
             riv=1/riv*riv;

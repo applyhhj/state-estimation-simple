@@ -35,6 +35,8 @@ public class MatrixHTH {
 
         computeHTH();
 
+        computeHTRIH();
+
         matrix.print();
 
     }
@@ -113,13 +115,41 @@ public class MatrixHTH {
 
         int ke=HTRI.getRowStartAddress().get(i+1);
 
-        int ls=matrixH.
+        int ls=matrixH.getIHT().get(j);
 
-        for (int k = ; k <HTRI.getRowStartAddress().get(i+1) ; k++) {
+        int le=matrixH.getIHT().get(j+1);
 
+        int j1,j2;
 
+        double ret=0;
+
+        while (ks<ke&&ls<le){
+
+            j1=HTRI.getColumnAndValues().get(ks).getColumn();
+
+            j2=matrixH.getMIHT().get(ls);
+
+            if (j1==j2){
+
+                ret=ret+HTRI.getColumnAndValues().get(ks).getValue()*matrixH.getMHT().get(ls);
+
+                ks++;
+
+                ls++;
+
+            }else if (j1>j2){
+
+                ks++;
+
+            }else{
+
+                ls++;
+
+            }
 
         }
+
+        return ret;
 
     }
 
@@ -167,4 +197,7 @@ public class MatrixHTH {
 
     }
 
+    public SparseMatrix getMatrix() {
+        return matrix;
+    }
 }

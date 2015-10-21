@@ -1,11 +1,14 @@
 package ic.app.se.simple.estimate;
 
+import ic.app.se.simple.common.ColumnAndValue;
 import ic.app.se.simple.common.Constants;
 import ic.app.se.simple.common.SparseMatrix;
 import ic.app.se.simple.data.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ic.app.se.simple.common.Utils.gaussElimination;
 
 /**
  * Created by hjh on 15-10-19.
@@ -87,11 +90,103 @@ public class Estimator {
 
         while (it++<itLimit){
 
-            kpq=0;
+            powerGrid.getMatrixY().setKPQ(0);
 
-            computeResidual();
+            computeState();
 
+            if (absMax(x)<Constants.ESTIMATOR.ERR_THETA){
 
+                kp=true;
+
+                if (kq){
+
+                    break;
+
+                }
+
+            }else {
+
+                correctState(0);
+
+            }
+
+            powerGrid.getMatrixY().setKPQ(1);
+
+            computeState();
+
+            if (absMax(x)<Constants.ESTIMATOR.ERR_V){
+
+                kq=true;
+
+                if (kp){
+
+                    break;
+
+                }
+
+            }else {
+
+                correctState(1);
+
+            }
+
+        }
+
+    }
+
+    private void computeState(){
+
+        List<ColumnAndValue> uju=new ArrayList<ColumnAndValue>();
+
+        computeResidual();
+
+        zeroResidualRecognition();
+
+        computeX();
+
+        gaussElimination(powerGrid.getMatrixHTH().getMatrix(),uju);
+
+        solveLinearFunction(uju);
+
+    }
+
+    private double absMax(List<Double> list){
+
+        double ret=-1,absv;
+
+        for (Double v:list){
+
+            absv=Math.abs(v);
+
+            if (absv>ret){
+
+                ret=absv;
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    private void correctState(int isv){
+
+        List<Double> st;
+
+        if (isv==1){
+
+            st=state.getVe();
+
+        }else {
+
+            st=state.getAe();
+
+        }
+
+        for (int i = 0; i < x.size(); i++) {
+
+            st.set(i,st.get(i)+x.get(i));
 
         }
 
@@ -261,7 +356,7 @@ public class Estimator {
 
             jxb=jxb+r*r;
 
-            if (Math.abs(r)< Constants.ESTIMATOR.err){
+            if (Math.abs(r)< Constants.ESTIMATOR.ERR_REC){
 
                 jx=jx+r*r;
 
@@ -300,6 +395,42 @@ public class Estimator {
             }
 
             x.add(xi/v0/v0);
+
+        }
+
+    }
+
+    private void solveLinearFunction(List<ColumnAndValue> uju){
+
+        int ku=0,j,i;
+
+        double d;
+
+        for (i = 0; i < x.size(); i++) {
+
+            d=uju.get(ku).getValue();
+
+            while (uju.get(++ku).getColumn()!=0){
+
+                j=uju.get(ku).getColumn();
+
+                x.set(j,x.get(j)-uju.get(ku).getValue()*x.get(i));
+
+            }
+
+            x.set(i,x.get(i)/d);
+
+        }
+
+        while (--i>=0){
+
+            while (uju.get(--ku).getColumn()!=0){
+
+                j=uju.get(ku).getColumn();
+
+                x.set(i,x.get(i)-x.get(j)*uju.get(ku).getValue());
+
+            }
 
         }
 
