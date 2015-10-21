@@ -21,15 +21,17 @@ public class MatrixY {
 
     private BusNumbers busNumbers;
 
-    private List<JJY> jjyList;
-
 //    start address
     private List<Integer> IY;
 
-    private List<JYL> jylList;
+//    value
+    private List<JJY> jjyList;
 
 //    start address
     private List<Integer> IYL;
+
+//   lower triangular matrix
+    private List<JYL> jylList;
 
     private double[] GII;
 
@@ -41,9 +43,9 @@ public class MatrixY {
 //    currently we set c to the max column number in jjyList
     private int c;
 
-    public MatrixY(BranchTable branchTable, BusNumbers busNumbers){
+    public MatrixY(BranchTable branchTable, BusNumbers busNumbers,int kpq){
 
-        KPQ=1;
+        KPQ=kpq;
 
         this.branchTable=branchTable;
 
@@ -61,13 +63,17 @@ public class MatrixY {
 
         BII=new double[busNumbers.getNOB()];
 
+//        printMatrix();
+
+    }
+
+    public void compute(){
+
         computeJJY();
 
         computeJYL();
 
         computeYMatrix();
-
-//        printMatrix();
 
     }
 
@@ -455,7 +461,7 @@ public class MatrixY {
         return jylList;
     }
 
-    public void setKPQ(int KPQ) {
-        this.KPQ = KPQ;
-    }
+//    public void setKPQ(int KPQ) {
+//        this.KPQ = KPQ;
+//    }
 }

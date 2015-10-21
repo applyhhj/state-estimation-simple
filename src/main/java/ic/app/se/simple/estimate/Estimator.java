@@ -15,8 +15,6 @@ import static ic.app.se.simple.common.Utils.gaussElimination;
  */
 public class Estimator {
 
-    private int kpq;
-
     private boolean kp;
 
     private boolean kq;
@@ -74,7 +72,7 @@ public class Estimator {
 
         jxb=0;
 
-        x=new ArrayList<Double>();
+        x=powerGrid.getState().getX();
 
         this.HTRI=powerGrid.getMatrixH().getHTRI();
 
@@ -90,7 +88,7 @@ public class Estimator {
 
         while (it++<itLimit){
 
-            powerGrid.getMatrixY().setKPQ(0);
+            powerGrid.setKPQ(0);
 
             computeState();
 
@@ -106,11 +104,11 @@ public class Estimator {
 
             }else {
 
-                correctState(0);
+                correctState(powerGrid.getKPQ());
 
             }
 
-            powerGrid.getMatrixY().setKPQ(1);
+            powerGrid.setKPQ(1);
 
             computeState();
 
@@ -126,7 +124,7 @@ public class Estimator {
 
             }else {
 
-                correctState(1);
+                correctState(powerGrid.getKPQ());
 
             }
 

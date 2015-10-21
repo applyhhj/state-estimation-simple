@@ -1,9 +1,9 @@
-import ic.app.se.simple.estimate.PowerGrid;
+package ic.app.se.simple.estimate;
 
 /**
- * Created by hjh on 15-10-9.
+ * Created by hjh on 15-10-21.
  */
-public class Test {
+public class main {
 
     public static void main(String[] args) {
 
@@ -18,6 +18,8 @@ public class Test {
             powerGrid.measure();
 
             powerGrid.estimate();
+
+            System.out.print("Estimation "+i);
 
         }
 

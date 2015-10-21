@@ -21,6 +21,10 @@ public class MatrixH {
 
     private List<Integer> MH;
 
+//    private SparseMatrix H;
+//
+//    private SparseMatrix HT;
+
 //    HT row
     private List<Integer> IHT;
 

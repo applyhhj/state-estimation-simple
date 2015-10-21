@@ -19,11 +19,11 @@ public class MatrixHTH {
 
     private int NOB;
 
-    public MatrixHTH(MatrixH matrixH, int NOB){
+    public MatrixHTH(BusNumbers busNumbers, MatrixH matrixH){
 
         this.matrixH=matrixH;
 
-        this.NOB=NOB;
+        this.NOB=busNumbers.getNOB();
 
         this.HTRI=matrixH.getHTRI();
 

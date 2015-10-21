@@ -18,19 +18,43 @@ public class PowerGrid {
 
     private BusNumbers busNumbers;
 
-    private MatrixY matrixY;
+    private MatrixY matrixYQ;
 
-    private MatrixH matrixH;
+    private MatrixY matrixYP;
 
-    private MatrixHTH matrixHTH;
+    private MatrixH matrixHQ;
+
+    private MatrixH matrixHP;
+
+    private MatrixHTH matrixHTHQ;
+
+    private MatrixHTH matrixHTHP;
 
     private EstimatedState state;
 
+    private Estimator estimator;
+
+    private int KPQ;
+
     public PowerGrid(){
+
+        KPQ=0;
 
         branchTable=new BranchTable();
 
         measurementTable=new MeasurementTable();
+
+    }
+
+    public void measure(){
+
+        measurementTable.generateMeasurement();
+
+    }
+
+    public void estimate(){
+
+        estimator.estimate();
 
     }
 
@@ -42,7 +66,7 @@ public class PowerGrid {
         this.id = id;
     }
 
-    public boolean loadCDFDataFromFile(String filepath){
+    public void initData(String filepath){
 
         List<String> content=readStringFromFile(filepath);
 
@@ -52,13 +76,19 @@ public class PowerGrid {
 
         busNumbers=new BusNumbers(branchTable,measurementTable);
 
-        matrixY =new MatrixY(branchTable,busNumbers);
+        matrixYQ =new MatrixY(branchTable,busNumbers,0);
 
-        matrixH =new MatrixH(branchTable,busNumbers,measurementTable, matrixY);
+        matrixYP =new MatrixY(branchTable,busNumbers,1);
 
-        matrixHTH=new MatrixHTH(matrixH,busNumbers.getNOB());
+        matrixHQ =new MatrixH(branchTable,busNumbers,measurementTable, matrixYQ);
 
-        return true;
+        matrixHP =new MatrixH(branchTable,busNumbers,measurementTable, matrixYP);
+
+        matrixHTHQ=new MatrixHTH(busNumbers,matrixHQ);
+
+        matrixHTHP=new MatrixHTH(busNumbers,matrixHP);
+
+        estimator=new Estimator(this);
 
     }
 
@@ -74,19 +104,56 @@ public class PowerGrid {
         return busNumbers;
     }
 
-    public MatrixY getMatrixY() {
-        return matrixY;
-    }
-
     public BranchTable getBranchTable() {
         return branchTable;
     }
 
+    public MatrixY getMatrixY() {
+
+        if (KPQ==1){
+
+            return matrixYQ;
+
+        }else {
+
+            return matrixYP;
+
+        }
+
+    }
+
     public MatrixH getMatrixH() {
-        return matrixH;
+
+        if (KPQ==1){
+
+            return matrixHQ;
+
+        }else {
+
+            return matrixHP;
+
+        }
+
     }
 
     public MatrixHTH getMatrixHTH() {
-        return matrixHTH;
+
+        if (KPQ==1){
+
+            return matrixHTHQ;
+
+        }else {
+
+            return matrixHTHP;
+
+        }
+    }
+
+    public void setKPQ(int KPQ) {
+        this.KPQ = KPQ;
+    }
+
+    public int getKPQ() {
+        return KPQ;
     }
 }

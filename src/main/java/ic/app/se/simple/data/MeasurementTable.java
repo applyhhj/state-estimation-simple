@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Random;
 
 import static ic.app.se.simple.common.Utils.loadSectionData;
 
@@ -25,6 +26,10 @@ public class MeasurementTable {
 
     private double[] sigma;
 
+    private double[] real;
+
+    private Random random;
+
     private double V0;
 
     public void loadData(List<String> data){
@@ -38,6 +43,8 @@ public class MeasurementTable {
         double[] ztmp=new double[mData.size()];
 
         double[] sigmatmp=new double[mData.size()];
+
+        double[] realtmp=new double[mData.size()];
 
         for (int k = 0; k < mData.size(); k++){
 
@@ -53,13 +60,15 @@ public class MeasurementTable {
 
             }
 
+            typetmp[k]=Integer.parseInt(col[1]);
+
             locationtmp[k]=Integer.parseInt(col[2]);
 
             ztmp[k]=Double.parseDouble(col[3]);
 
             sigmatmp[k]=Double.parseDouble(col[4]);
 
-            typetmp[k]=Integer.parseInt(col[1]);
+            realtmp[k]=Double.parseDouble(col[5]);
 
             if (typetmp[k]==0){
 
@@ -78,6 +87,24 @@ public class MeasurementTable {
         setType(typetmp);
 
         setZ(ztmp);
+
+        setReal(realtmp);
+
+    }
+
+    public void generateMeasurement(){
+
+        for (int i = 0; i < z.length; i++) {
+
+            z[i]=normalRandom(real[i],sigma[i]);
+
+        }
+
+    }
+
+    private double normalRandom(double zreal, double sigma) {
+
+        return random.nextGaussian()*sigma+zreal;
 
     }
 
@@ -123,6 +150,10 @@ public class MeasurementTable {
 
     public void setZ(double[] z) {
         this.z = z;
+    }
+
+    public void setReal(double[] real) {
+        this.real = real;
     }
 
     public double getV0() {
