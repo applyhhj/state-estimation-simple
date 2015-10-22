@@ -80,7 +80,7 @@ public class MatrixH {
 
         printHMatrix();
 
-        printHTMatrix();
+//        printHTMatrix();
 
     }
 
@@ -105,7 +105,7 @@ public class MatrixH {
 
                         HI.add(I-1);
 
-                        H.add(1/measurementTable.getV0());
+                        H.add(-1/measurementTable.getV0());
 
                         break;
 
@@ -164,9 +164,9 @@ public class MatrixH {
 
                             if (type==5){
 
-                                H.add(-(2*B/YK-B)/YK);
+                                H.add((2*B/YK-B)/YK);
 
-                                H.add(B/YK);
+                                H.add(-B/YK);
 
                             }else {
 
@@ -179,14 +179,14 @@ public class MatrixH {
                         }else {
 
                             if (type==5){
-
+//
                                 H.add(B-2*(B-YK));
 
-                                H.add(B);
+                                H.add(-B);
 
                             }else {
 
-                                H.add(B);
+                                H.add(-B);
 
                                 H.add(B-2*YK);
 
@@ -261,7 +261,7 @@ public class MatrixH {
 
                         double X=branchTable.getXij()[L-1];
 
-                        double B=-1/X;
+                        double B=1/X;
 
                         if (type==4){
 
