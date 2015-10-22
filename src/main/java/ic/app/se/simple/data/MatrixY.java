@@ -68,7 +68,7 @@ public class MatrixY {
 
         compute();
 
-        printMatrix();
+//        printMatrix();
 
     }
 
