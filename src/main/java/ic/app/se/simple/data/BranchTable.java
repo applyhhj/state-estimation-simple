@@ -134,6 +134,7 @@ public class BranchTable {
 
         }
 
+//        these are numbers
         setI(itmp);
 
         setJ(jtmp);

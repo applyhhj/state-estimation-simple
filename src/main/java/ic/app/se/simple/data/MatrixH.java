@@ -13,17 +13,17 @@ import java.util.List;
  */
 public class MatrixH {
 
+//    stores index
     public static Logger logger= LoggerFactory.getLogger(MatrixH.class);
 
+//    H column
     private List<Integer> HI;
 
+//    H value
     private List<Double> H;
 
+//    H row
     private List<Integer> MH;
-
-//    private SparseMatrix H;
-//
-//    private SparseMatrix HT;
 
 //    HT row
     private List<Integer> IHT;
@@ -80,14 +80,11 @@ public class MatrixH {
 
         printHTMatrix();
 
-        System.out.print("----------------\n\n");
-
         printHMatrix();
-
-        System.out.print("----------------\n\n");
 
     }
 
+//    stores index, use index to access
     public void computeHMatrix() {
 
         MH.add(0);
@@ -104,9 +101,9 @@ public class MatrixH {
 
                     case 1:{
 
-                        int I= getBusOutNumber(i);
+                        int I= getBusInternalNumber(i);
 
-                        HI.add(I);
+                        HI.add(I-1);
 
                         H.add(1/measurementTable.getV0());
 
@@ -116,12 +113,13 @@ public class MatrixH {
 
                     case 3:{
 
-                        int I= getBusOutNumber(i);
+                        int I= getBusInternalNumber(i);
 
                         List<B> bb=getBFromYMatrixForRowI(I);
 
                         for (int j = 0; j < bb.size(); j++) {
 
+//                            Y matrix stores index, do not need to minus 1
                             HI.add(bb.get(j).getJ());
 
                             H.add(bb.get(j).getB());
@@ -146,9 +144,10 @@ public class MatrixH {
 
                     case 7:{
 
-//                        branch number
+//                        branch number, natural order
                         int L=measurementTable.getLocation()[i];
 
+//                        this is the number, not index
                         int I=busNumbers.getTOI().get(branchTable.getI()[L-1]);
 
                         int J=busNumbers.getTOI().get(branchTable.getJ()[L-1]);
@@ -195,9 +194,9 @@ public class MatrixH {
 
                         }
 
-                        HI.add(I);
+                        HI.add(I-1);
 
-                        HI.add(J);
+                        HI.add(J-1);
 
                         break;
 
@@ -206,6 +205,8 @@ public class MatrixH {
                     default:{
 
                         logger.error("Unrecognized type {}!!",type);
+
+                        break;
 
                     }
 
@@ -231,12 +232,13 @@ public class MatrixH {
 
                     case 2:{
 
-                        int I= getBusOutNumber(i);
+                        int I= getBusInternalNumber(i);
 
                         List<B> bb=getBFromYMatrixForRowI(I);
 
                         for (int j = 0; j < bb.size(); j++) {
 
+//                            Y stores index
                             HI.add(bb.get(j).getJ());
 
                             H.add(bb.get(j).getB());
@@ -275,9 +277,9 @@ public class MatrixH {
 
                         }
 
-                        HI.add(I);
+                        HI.add(I-1);
 
-                        HI.add(J);
+                        HI.add(J-1);
 
                     }
 
@@ -311,7 +313,7 @@ public class MatrixH {
 
             for (int j = 0; j < HI.size(); j++) {
 
-                if (HI.get(j)==i+1) {
+                if (HI.get(j)==i) {
 
                     former++;
 
@@ -325,7 +327,8 @@ public class MatrixH {
 
                 if (data!=null){
 
-                    MIHT.add(m+1);
+//                    this is the measurement index
+                    MIHT.add(m);
 
                     MHT.add(data);
 
@@ -366,25 +369,27 @@ public class MatrixH {
         return HTRI;
     }
 
-    private int getBusOutNumber(int i){
+    private int getBusInternalNumber(int i){
 
         return busNumbers.getTOI().get(measurementTable.getLocation()[i]);
 
     }
 
-    private List<B> getBFromYMatrixForRowI(int I){
+    private List<B> getBFromYMatrixForRowI(int busNumber){
 
         List<B> ret=new ArrayList<B>();
 
         for (int j = 1; j <=busNumbers.getNOB(); j++) {
 
-            Double Bvalue= matrixY.getBIJ(I,j);
+//            get method use bus number so it starts from 1
+            Double Bvalue= matrixY.getBIJ(busNumber,j);
 
             if (Bvalue!=null) {
 
                 B b = new B();
 
-                b.setJ(j);
+//                stores index
+                b.setJ(j-1);
 
                 b.setB(Bvalue);
 
@@ -403,8 +408,8 @@ public class MatrixH {
 
         for (int j = MH.get(m-1); j <MH.get(m); j++) {
 
-//            this array stores number
-            if (HI.get(j)==i){
+//            this array stores index
+            if (HI.get(j)==i-1){
 
                 return H.get(j);
 
@@ -421,8 +426,8 @@ public class MatrixH {
 
         for (int j = IHT.get(i-1); j <IHT.get(i); j++) {
 
-//            this array stores number
-            if (MIHT.get(j)==m){
+//            this array stores index
+            if (MIHT.get(j)==m-1){
 
                 return MHT.get(j);
 
@@ -468,11 +473,11 @@ public class MatrixH {
 
                 if (data!=null){
 
-                    System.out.printf("%9.2f,",data);
+                    System.out.printf("%7.4f,",data);
 
                 }else {
 
-                    System.out.print("         ,");
+                    System.out.print("       ,");
 
                 }
 
@@ -481,6 +486,8 @@ public class MatrixH {
             System.out.print("\n");
 
         }
+
+        System.out.print("\n-------------------------------\n");
 
     }
 
@@ -494,11 +501,11 @@ public class MatrixH {
 
                 if (data!=null){
 
-                    System.out.printf("%9.2f,", data);
+                    System.out.printf("%7.4f,", data);
 
                 }else {
 
-                    System.out.print("         ,");
+                    System.out.print("       ,");
 
                 }
 
@@ -507,6 +514,8 @@ public class MatrixH {
             System.out.print("\n");
 
         }
+
+        System.out.print("\n-------------------------------\n");
 
     }
 

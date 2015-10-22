@@ -13,6 +13,9 @@ import java.util.List;
  */
 public class MatrixY {
 
+    //    all get set method uses internal bus number as input!!!!!
+    //    however sparse matrix stores index
+
     public Logger logger= LoggerFactory.getLogger(MatrixY.class);
 
     private int KPQ;
@@ -21,27 +24,25 @@ public class MatrixY {
 
     private BusNumbers busNumbers;
 
+//    upper triangular matrix
 //    start address
     private List<Integer> IY;
 
-//    value
+//    value and column, this is the index it is the internal bus number minus 1
     private List<JJY> jjyList;
 
+//   lower triangular matrix
 //    start address
     private List<Integer> IYL;
 
-//   lower triangular matrix
     private List<JYL> jylList;
 
     private double[] GII;
 
     private double[] BII;
 
-//    r,c is the size of the matrix
-    private int r;
-
-//    currently we set c to the max column number in jjyList
-    private int c;
+//    Y is a NOB*NOB matrix, so matrix order equals NOB
+    private int order;
 
     public MatrixY(BranchTable branchTable, BusNumbers busNumbers,int kpq){
 
@@ -50,6 +51,8 @@ public class MatrixY {
         this.branchTable=branchTable;
 
         this.busNumbers=busNumbers;
+
+        setOrder();
 
         jjyList=new ArrayList<JJY>(branchTable.getNOE());
 
@@ -63,7 +66,9 @@ public class MatrixY {
 
         BII=new double[busNumbers.getNOB()];
 
-//        printMatrix();
+        compute();
+
+        printMatrix();
 
     }
 
@@ -77,6 +82,7 @@ public class MatrixY {
 
     }
 
+//    upper triangle matrix
     private void computeJJY(){
 
         int idx=0;
@@ -99,6 +105,7 @@ public class MatrixY {
 
                         JJY jjy=new JJY();
 
+//                        stores index
                         jjy.setJ(j-1);
 
                         jjyList.add(idx++,jjy);
@@ -126,6 +133,8 @@ public class MatrixY {
 
         }
 
+        IY.add(idx==0?0:idx-1);
+
     }
 
     private void computeJYL(){
@@ -150,6 +159,7 @@ public class MatrixY {
 
                         JYL jyl=new JYL();
 
+//                        stores index, not bus number
                         jyl.setJ(j-1);
 
                         jylList.add(idx++,jyl);
@@ -176,6 +186,8 @@ public class MatrixY {
             }
 
         }
+
+        IYL.add(idx==0?0:idx-1);
 
     }
 
@@ -255,32 +267,35 @@ public class MatrixY {
 
         }
 
-        setRC();
+    }
+
+    private void setOrder(){
+
+        order=busNumbers.getNOB();
 
     }
 
-    private void setRC(){
+    private boolean numberValid(int i,int j){
 
-        r=IY.size()-1;
+        if (i<1||i>order||j<1||j>order){
 
-        int jmax=Integer.MIN_VALUE;
-
-        for (int i = 0; i < jjyList.size(); i++) {
-
-            if (jmax<jjyList.get(i).getJ()){
-
-                jmax=jjyList.get(i).getJ();
-
-            }
+            return false;
 
         }
 
-        c=jmax+1;
+        return true;
 
     }
 
-//    to get the element use the internal number-1
     public Double getGIJ(int i,int j){
+
+        if (!numberValid(i,j)){
+
+            logger.error("Input bus number invalid!!");
+
+            return null;
+
+        }
 
         if (i==j){
 
@@ -306,6 +321,14 @@ public class MatrixY {
 
     public Double getBIJ(int i,int j){
 
+        if (!numberValid(i,j)){
+
+            logger.error("Input bus number invalid!!");
+
+            return null;
+
+        }
+
         if (i==j){
 
             return BII[i-1];
@@ -330,6 +353,14 @@ public class MatrixY {
 
     public void setGIJ(int i,int j,double value){
 
+        if (!numberValid(i,j)){
+
+            logger.error("Input bus number invalid!!");
+
+            return;
+
+        }
+
         if (i==j){
 
             GII[i-1]=value;
@@ -350,6 +381,14 @@ public class MatrixY {
 
     public void setBIJ(int i,int j,double value){
 
+        if (!numberValid(i,j)){
+
+            logger.error("Input bus number invalid!!");
+
+            return;
+
+        }
+
         if (i==j){
 
             BII[i-1]=value;
@@ -368,7 +407,7 @@ public class MatrixY {
 
     }
 
-    public JJY getNonDigGB(int i, int j){
+    private JJY getNonDigGB(int i, int j){
 
         if (i==j){
 
@@ -394,34 +433,23 @@ public class MatrixY {
 
         }
 
-//        logger.error("Y{}{} not found!",i,j);
-
         return null;
 
     }
 
-//    test
     public void printMatrix(){
 
         for (int i = 0; i < busNumbers.getNOB(); i++) {
 
             for (int j = 0; j < busNumbers.getNOB(); j++) {
 
-                if (getNonDigGB(i + 1, j + 1)!=null) {
+                if (getGIJ(i + 1, j + 1)!=null||getBIJ(i + 1, j + 1)!=null) {
 
-                    System.out.print(getGIJ(i + 1, j + 1) + " " + getBIJ(i + 1, j + 1) + "j,    ");
+                    System.out.printf("%7.4f + j%7.4f,",getGIJ(i + 1, j + 1),getBIJ(i + 1, j + 1));
 
                 }else {
 
-                    if (i==j){
-
-                        System.out.print(getGIJ(i + 1, j + 1) + " " + getBIJ(i + 1, j + 1) + "j,    ");
-
-                    }else {
-
-                        System.out.print("   ,    ");
-
-                    }
+                        System.out.print("                  ,");
 
                 }
 
@@ -431,18 +459,16 @@ public class MatrixY {
 
         }
 
+        System.out.print("\n-------------------------------\n");
+
     }
 
     public int getKPQ() {
         return KPQ;
     }
 
-    public int getC() {
-        return c;
-    }
-
-    public int getR() {
-        return r;
+    public int getOrder() {
+        return order;
     }
 
     public List<Integer> getIY() {
@@ -461,7 +487,4 @@ public class MatrixY {
         return jylList;
     }
 
-//    public void setKPQ(int KPQ) {
-//        this.KPQ = KPQ;
-//    }
 }

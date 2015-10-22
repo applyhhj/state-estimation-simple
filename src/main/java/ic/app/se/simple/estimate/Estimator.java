@@ -88,6 +88,7 @@ public class Estimator {
 
         while (it++<itLimit){
 
+//            p
             powerGrid.setKPQ(0);
 
             computeState();
@@ -108,6 +109,7 @@ public class Estimator {
 
             }
 
+//            q
             powerGrid.setKPQ(1);
 
             computeState();
@@ -196,8 +198,6 @@ public class Estimator {
 
         double G,B,vi,vj,thetaij,sinij,cosij,yk,h;
 
-        state.getRes().clear();
-
         for (int n = 0; n <measurementTable.getNOM(); n++) {
 
             h=0;
@@ -208,10 +208,10 @@ public class Estimator {
 
                 loc=measurementTable.getLocation()[n];
 
-//                branch use natural order, loc-1 is the array index, here we get the index
-                iint=busNumbers.getTOI().get(branchTable.getI()[loc-1])-1;
+//                branch use natural order, loc-1 is the array index
+                iint=busNumbers.getTOI().get(branchTable.getI()[loc-1]);
 
-                jint=busNumbers.getTOI().get(branchTable.getJ()[loc-1])-1;
+                jint=busNumbers.getTOI().get(branchTable.getJ()[loc-1]);
 
                 yk=branchTable.getYk()[loc-1];
 
@@ -219,11 +219,11 @@ public class Estimator {
 
                 B=Y.getBIJ(iint,jint);
 
-                vi=state.getVe().get(iint);
+                vi=state.getVe().get(iint-1);
 
-                vj=state.getVe().get(jint);
+                vj=state.getVe().get(jint-1);
 
-                thetaij=state.getAe().get(iint)-state.getAe().get(jint);
+                thetaij=state.getAe().get(iint-1)-state.getAe().get(jint-1);
 
                 sinij=Math.sin(thetaij);
 
@@ -291,7 +291,8 @@ public class Estimator {
 
             }else {
 
-                iint=busNumbers.getTOI().get(measurementTable.getLocation()[n]);
+//                use index
+                iint=busNumbers.getTOI().get(measurementTable.getLocation()[n])-1;
 
                 if (type<2){
 
@@ -299,9 +300,47 @@ public class Estimator {
 
                 }else {
 
-                    for (int i = Y.getIY().get(iint); i < Y.getIY().get(iint+1); i++) {
+                    List<Integer> rowidx=getYRow(iint);
 
-                        jint=Y.getJjyList().get(i).getJ();
+                    boolean up=false;
+
+                    int idx;
+
+                    for (int i = 0; i < rowidx.size(); i++) {
+
+                        idx=rowidx.get(i);
+
+                        if (idx==-1){
+
+                            jint=iint;
+
+                            G=Y.getGIJ(iint,iint);
+
+                            B=Y.getBIJ(iint,iint);
+
+                            up=true;
+
+                        }else {
+
+                            if (up){
+
+                                jint = Y.getJjyList().get(idx).getJ();
+
+                                G=Y.getJjyList().get(idx).getGIJ();
+
+                                B=Y.getJjyList().get(idx).getBIJ();
+
+                            }else {
+
+                                jint=Y.getJylList().get(idx).getJ();
+
+                                G=Y.getJjyList().get(Y.getJylList().get(idx).getGBI()).getGIJ();
+
+                                B=Y.getJjyList().get(Y.getJylList().get(idx).getGBI()).getBIJ();
+
+                            }
+
+                        }
 
                         vi=state.getVe().get(iint);
 
@@ -312,10 +351,6 @@ public class Estimator {
                         sinij=Math.sin(thetaij);
 
                         cosij=Math.cos(thetaij);
-
-                        G=Y.getJjyList().get(i).getGIJ();
-
-                        B=Y.getJjyList().get(i).getBIJ();
 
                         if (type==3){
 
@@ -339,8 +374,37 @@ public class Estimator {
 
     }
 
+    private List<Integer> getYRow(int iint){
+
+        List<Integer> rowidx=new ArrayList<Integer>();
+
+        for (int i = Y.getIYL().get(iint); i <Y.getIYL().get(iint + 1) ; i++) {
+
+            rowidx.add(i);
+
+        }
+
+//        diagonal element
+        rowidx.add(-1);
+
+        for (int i = Y.getIY().get(iint); i <Y.getIY().get(iint+1) ; i++) {
+
+            rowidx.add(i);
+
+        }
+
+        return rowidx;
+
+    }
+
 //    simple bad data recognition program
     private void zeroResidualRecognition(){
+
+        if (it<5){
+
+            return;
+
+        }
 
         double r;
 
@@ -408,7 +472,7 @@ public class Estimator {
 
             d=uju.get(ku).getValue();
 
-            while (uju.get(++ku).getColumn()!=0){
+            while (++ku<uju.size()&&uju.get(ku).getColumn()!=0){
 
                 j=uju.get(ku).getColumn();
 
@@ -422,7 +486,7 @@ public class Estimator {
 
         while (--i>=0){
 
-            while (uju.get(--ku).getColumn()!=0){
+            while (--ku>=0&&uju.get(ku).getColumn()!=0){
 
                 j=uju.get(ku).getColumn();
 

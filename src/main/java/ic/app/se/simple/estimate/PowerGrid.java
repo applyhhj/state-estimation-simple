@@ -76,9 +76,9 @@ public class PowerGrid {
 
         busNumbers=new BusNumbers(branchTable,measurementTable);
 
-        matrixYQ =new MatrixY(branchTable,busNumbers,0);
+        matrixYP =new MatrixY(branchTable,busNumbers,0);
 
-        matrixYP =new MatrixY(branchTable,busNumbers,1);
+        matrixYQ =new MatrixY(branchTable,busNumbers,1);
 
         matrixHQ =new MatrixH(branchTable,busNumbers,measurementTable, matrixYQ);
 
@@ -87,6 +87,8 @@ public class PowerGrid {
         matrixHTHQ=new MatrixHTH(busNumbers,matrixHQ);
 
         matrixHTHP=new MatrixHTH(busNumbers,matrixHP);
+
+        state=new EstimatedState(busNumbers.getNOB(),measurementTable.getNOM(),measurementTable.getV0(),0);
 
         estimator=new Estimator(this);
 

@@ -11,9 +11,13 @@ import static ic.app.se.simple.common.Utils.loadSectionData;
 
 /**
  * Created by hjh on 15-10-9.
+ *
+ * Uses natural order
+ *
  */
 public class MeasurementTable {
 
+//    measurement table uses natural order, measurement number starts from zero, uses index to access
     public static Logger logger= LoggerFactory.getLogger(MeasurementTable.class);
 
     private int NOM;
@@ -31,6 +35,12 @@ public class MeasurementTable {
     private Random random;
 
     private double V0;
+
+    public MeasurementTable(){
+
+        random=new Random();
+
+    }
 
     public void loadData(List<String> data){
 
@@ -62,6 +72,7 @@ public class MeasurementTable {
 
             typetmp[k]=Integer.parseInt(col[1]);
 
+//            this is the number not index
             locationtmp[k]=Integer.parseInt(col[2]);
 
             ztmp[k]=Double.parseDouble(col[3]);

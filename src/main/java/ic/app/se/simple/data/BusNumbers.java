@@ -13,7 +13,7 @@ public class BusNumbers {
 
     public static Logger logger= LoggerFactory.getLogger(BusNumbers.class);
 
-//    max internal bus number
+//    max internal bus number, internal bus number starts from 1 ends with NOB
     private int NOB;
 
 //    max external bus number
@@ -122,7 +122,7 @@ public class BusNumbers {
 
         }
 
-        int internalIdx=1;
+        int internalBusNumber=1;
 
         while (busBranchNumberMap.size()>0){
 
@@ -144,11 +144,11 @@ public class BusNumbers {
 
             }
 
-            TIO.put(internalIdx,minKey);
+            TIO.put(internalBusNumber,minKey);
 
             busBranchNumberMap.remove(minKey);
 
-            internalIdx++;
+            internalBusNumber++;
 
         }
 

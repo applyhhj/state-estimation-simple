@@ -55,23 +55,23 @@ public class MatrixHTH {
 
             List<Integer> tmp=new ArrayList<Integer>();
 
-//            these are the measurement number not index
+//            these are the measurement index
             mi=matrixH.getIHT().get(i);
 
-            me=matrixH.getIHT().get(i+1)-1;
+            me=matrixH.getIHT().get(i+1);
 
-            while (mi<=me) {
+            while (mi<me) {
 
                 m = matrixH.getMIHT().get(mi);
 
-                ji = matrixH.getMH().get(m-1);
+                ji = matrixH.getMH().get(m);
 
-                je = matrixH.getMH().get(m) - 1;
+                je = matrixH.getMH().get(m+1);
 
-                while (ji <= je) {
+                while (ji < je) {
 
-//                    this is the number, should convert to index
-                    j = matrixH.getHI().get(ji)-1;
+//                    this is the index
+                    j = matrixH.getHI().get(ji);
 
                     insertToSortedArray(j, tmp);
 
@@ -97,11 +97,15 @@ public class MatrixHTH {
 
     private void computeHTRIH(){
 
+        int j;
+
         for (int i = 0; i < matrix.getRowStartAddress().size() - 1; i++) {
 
-            for (int j = matrix.getRowStartAddress().get(i); j < matrix.getRowStartAddress().get(i + 1); j++) {
+            for (int k = matrix.getRowStartAddress().get(i); k < matrix.getRowStartAddress().get(i + 1); k++) {
 
-                matrix.getColumnAndValues().get(j).setValue(getHTRIHElement(i,j));
+                j=matrix.getColumnAndValues().get(k).getColumn();
+
+                matrix.getColumnAndValues().get(k).setValue(getHTRIHElement(i,j));
 
             }
 
@@ -109,6 +113,7 @@ public class MatrixHTH {
 
     }
 
+//    use index
     private double getHTRIHElement(int i,int j){
 
         int ks=HTRI.getRowStartAddress().get(i);
@@ -139,11 +144,11 @@ public class MatrixHTH {
 
             }else if (j1>j2){
 
-                ks++;
+                ls++;
 
             }else{
 
-                ls++;
+                ks++;
 
             }
 

@@ -172,7 +172,7 @@ public class SparseMatrix {
 
                 if (data!=null){
 
-                    System.out.printf("%9.2f,", data);
+                    System.out.printf("%9.4f,", data);
 
                 }else {
 
@@ -185,6 +185,8 @@ public class SparseMatrix {
             System.out.print("\n");
 
         }
+
+        System.out.print("\n-------------------------------\n");
 
     }
 

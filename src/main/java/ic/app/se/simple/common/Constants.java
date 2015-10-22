@@ -10,7 +10,7 @@ public abstract class Constants {
         public static final String BRANCH_SECTION_END_KEY="-999";
         public static final String MEASUREMENT_SECTION_END_KEY="-999";
         public static final int BRANCH_SECTION_NUMBER_OF_COLUMN=21;
-        public static final int MEASUREMENT_SECTION_NUMBER_OF_COLUMN=5;
+        public static final int MEASUREMENT_SECTION_NUMBER_OF_COLUMN=6;
     }
 
     public abstract class ESTIMATOR{
