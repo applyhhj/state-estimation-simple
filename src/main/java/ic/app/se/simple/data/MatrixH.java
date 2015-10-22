@@ -78,9 +78,9 @@ public class MatrixH {
 
         computeHTRI();
 
-        printHTMatrix();
-
         printHMatrix();
+
+        printHTMatrix();
 
     }
 
