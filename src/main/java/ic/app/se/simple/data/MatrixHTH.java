@@ -29,8 +29,7 @@ public class MatrixHTH {
 
         matrix=new SparseMatrix();
 
-//        ignore reference bus
-        order=busNumbers.getNOB()-1;
+        order=busNumbers.getNOB();
 
         matrix.setC(order);
 

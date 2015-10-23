@@ -198,6 +198,53 @@ public class SparseMatrix {
 
     }
 
+    public SparseMatrix getUpperTriangularMatrix(){
+
+        SparseMatrix ret=new SparseMatrix();
+
+        int idx=0,jc;
+
+        ret.getRowStartAddress().add(0);
+
+//        ignore reference bus
+        int cn=this.getRowStartAddress().size()-2;
+
+        for (int i = 0; i < this.getRowStartAddress().size()-2; i++) {
+
+            for (int j = this.getRowStartAddress().get(i); j < this.getRowStartAddress().get(i+1); j++) {
+
+                jc=this.getColumnAndValues().get(j).getColumn();
+
+                if (jc==cn){
+
+                    continue;
+
+                }
+
+                if (jc>=i){
+
+                    ret.getColumnAndValues().add(this.getColumnAndValues().get(j).copy());
+
+                    idx++;
+
+                }
+
+            }
+
+            ret.getRowStartAddress().add(idx);
+
+        }
+
+        ret.getRowStartAddress().add(idx);
+
+        ret.setC(this.getC()-1);
+
+        ret.setR(this.getR()-1);
+
+        return ret;
+
+    }
+
     public void setSymmetry(boolean symmetry) {
         this.symmetry = symmetry;
     }

@@ -54,6 +54,8 @@ public class PowerGrid {
 
     public void estimate(){
 
+        state.reset();
+
         estimator.estimate();
 
     }

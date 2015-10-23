@@ -16,6 +16,10 @@ public class EstimatedState {
 
     private List<Double> res;
 
+    private double initV;
+
+    private double initA;
+
     public EstimatedState(int NOB,int NOM,double initV,double initA){
 
         ae=new ArrayList<Double>();
@@ -25,6 +29,10 @@ public class EstimatedState {
         x=new ArrayList<Double>();
 
         res=new ArrayList<Double>();
+
+        this.initA=initA;
+
+        this.initV=initV;
 
         for (int i = 0; i < NOB; i++) {
 
@@ -59,4 +67,45 @@ public class EstimatedState {
     public List<Double> getRes() {
         return res;
     }
+
+    public void print(){
+
+        System.out.print("Voltage:\n");
+
+        for (int i = 0; i < ve.size(); i++) {
+
+            System.out.printf("%7.2f",ve.get(i));
+
+        }
+
+        System.out.print("\nAngle:\n");
+
+        for (int i = 0; i < ae.size(); i++) {
+
+            System.out.printf("%7.2f",ae.get(i));
+
+        }
+
+    }
+
+    public void reset(){
+
+        for (int i = 0; i < ve.size(); i++) {
+
+            ve.set(i,initV);
+
+            ae.set(i,initA);
+
+            x.set(i,0.0);
+
+        }
+
+        for (int i = 0; i < res.size(); i++) {
+
+            res.set(i,0.0);
+
+        }
+
+    }
+
 }

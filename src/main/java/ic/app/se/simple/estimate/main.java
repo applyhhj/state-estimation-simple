@@ -17,9 +17,9 @@ public class main {
 
             powerGrid.measure();
 
-            powerGrid.estimate();
+            System.out.print("\nEstimation "+i+"\n");
 
-            System.out.print("Estimation "+i);
+            powerGrid.estimate();
 
         }
 

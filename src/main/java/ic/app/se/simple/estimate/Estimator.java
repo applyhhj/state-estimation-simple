@@ -51,8 +51,13 @@ public class Estimator {
 
     private SparseMatrix HTRI;
 
-    private SparseMatrix HTH;
+    private List<ColumnAndValue> ujuP;
 
+    private List<ColumnAndValue> ujuQ;
+
+    private List<ColumnAndValue> uju;
+
+    private int kpq;
 
     public Estimator(PowerGrid powerGrid){
 
@@ -72,15 +77,35 @@ public class Estimator {
 
         bd=new ArrayList<Double>();
 
+        x=state.getX();
+
         jx=0;
 
         jxb=0;
 
-        x=powerGrid.getState().getX();
+        ujuP=new ArrayList<ColumnAndValue>();
+
+        ujuQ=new ArrayList<ColumnAndValue>();
+
+        computeUju();
 
     }
 
-    private void getMatrix(int kpq){
+    private void computeUju(){
+
+        powerGrid.setKPQ(0);
+
+        powerGrid.getMatrixHTH().getMatrix().getUpperTriangularMatrix().print();
+
+        gaussElimination(powerGrid.getMatrixHTH().getMatrix().getUpperTriangularMatrix(), ujuP);
+
+        powerGrid.setKPQ(1);
+
+        gaussElimination(powerGrid.getMatrixHTH().getMatrix().getUpperTriangularMatrix(), ujuQ);
+
+    }
+
+    private void getMatrix(){
 
         if (kpq!=0&&kpq!=1){
 
@@ -96,7 +121,15 @@ public class Estimator {
 
         HTRI=powerGrid.getMatrixH().getHTRI();
 
-        HTH=powerGrid.getMatrixHTH().getMatrix();
+        if (kpq==0){
+
+            uju=ujuP;
+
+        }else {
+
+            uju=ujuQ;
+
+        }
 
     }
 
@@ -110,8 +143,10 @@ public class Estimator {
 
         while (it++<itLimit){
 
+            kpq=0;
+
 //            p
-            getMatrix(0);
+            getMatrix();
 
             computeState();
 
@@ -131,8 +166,10 @@ public class Estimator {
 
             }
 
+            kpq=1;
+
 //            q
-            getMatrix(1);
+            getMatrix();
 
             computeState();
 
@@ -154,19 +191,17 @@ public class Estimator {
 
         }
 
+        state.print();
+
     }
 
     private void computeState(){
-
-        List<ColumnAndValue> uju=new ArrayList<ColumnAndValue>();
 
         computeResidual();
 
         zeroResidualRecognition();
 
         computeX();
-
-        gaussElimination(HTH,uju);
 
         solveLinearFunction(uju);
 
@@ -206,7 +241,8 @@ public class Estimator {
 
         }
 
-        for (int i = 0; i < x.size(); i++) {
+//        ignore reference bus
+        for (int i = 0; i < x.size()-1; i++) {
 
             st.set(i,st.get(i)+x.get(i));
 
@@ -225,6 +261,14 @@ public class Estimator {
             h=0;
 
             type=measurementTable.getType()[n];
+
+            if (type==0||type%2!=kpq){
+
+                state.getRes().set(n,0.0);
+
+                continue;
+
+            }
 
             if (type>=4){
 
@@ -400,7 +444,7 @@ public class Estimator {
 
         List<Integer> rowidx=new ArrayList<Integer>();
 
-        for (int i = Y.getIYL().get(iint); i <Y.getIYL().get(iint + 1) ; i++) {
+        for (int i = Y.getIYL().get(iint); i < Y.getIYL().get(iint + 1) ; i++) {
 
             rowidx.add(i);
 
@@ -422,7 +466,7 @@ public class Estimator {
 //    simple bad data recognition program
     private void zeroResidualRecognition(){
 
-        if (it<5){
+        if (it<2){
 
             return;
 
@@ -490,7 +534,8 @@ public class Estimator {
 
         double d;
 
-        for (i = 0; i < x.size(); i++) {
+//        ignore reference bus
+        for (i = 0; i < x.size()-1; i++) {
 
             d=uju.get(ku).getValue();
 
