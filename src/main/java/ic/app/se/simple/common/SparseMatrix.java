@@ -162,6 +162,14 @@ public class SparseMatrix {
         return rowStartAddress;
     }
 
+    public void print(String title){
+
+        System.out.print("\n************"+title+"************\n\n");
+
+        print();
+
+    }
+
     public void print(){
 
         for (int i = 0; i < r; i++) {

@@ -304,4 +304,22 @@ public class Utils {
 
     }
 
+    public static String getPQType(int type){
+
+        String pq;
+
+        if (type==0){
+
+            pq="P";
+
+        }else {
+
+            pq="Q";
+
+        }
+
+        return pq;
+
+    }
+
 }

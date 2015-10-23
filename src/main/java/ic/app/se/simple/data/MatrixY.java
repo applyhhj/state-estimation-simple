@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ic.app.se.simple.common.Utils.getPQType;
+import static java.lang.Character.getType;
+
 /**
  * Created by hjh on 15-10-11.
  */
@@ -68,7 +71,7 @@ public class MatrixY {
 
         compute();
 
-//        printMatrix();
+        printMatrix();
 
     }
 
@@ -438,6 +441,8 @@ public class MatrixY {
     }
 
     public void printMatrix(){
+
+        System.out.print("\n************Y"+getPQType(getKPQ())+"************\n\n");
 
         for (int i = 0; i < busNumbers.getNOB(); i++) {
 

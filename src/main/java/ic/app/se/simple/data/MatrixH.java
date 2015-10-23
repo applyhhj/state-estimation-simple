@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ic.app.se.simple.common.Utils.getPQType;
+
 /**
  * Created by hjh on 15-10-12.
  */
@@ -44,6 +46,8 @@ public class MatrixH {
 
     private SparseMatrix HTRI;
 
+    private int KPQ;
+
     private int c;
 
     private int r;
@@ -72,6 +76,12 @@ public class MatrixH {
 
         HTRI=new SparseMatrix();
 
+        r=measurementTable.getNOM();
+
+        c=busNumbers.getNOB();
+
+        KPQ=matrixY.getKPQ();
+
         computeHMatrix();
 
         computeHTMatrix();
@@ -80,7 +90,9 @@ public class MatrixH {
 
         printHMatrix();
 
-//        printHTMatrix();
+        printHTMatrix();
+
+        HTRI.print("HTRI"+getPQType(KPQ));
 
     }
 
@@ -357,11 +369,15 @@ public class MatrixH {
 //            sigma should be set before this computation
             riv=measurementTable.getSigma()[MIHT.get(i)];
 
-            riv=1/riv*riv;
+            riv=1/riv/riv;
 
             HTRI.getColumnAndValues().add(new ColumnAndValue(MIHT.get(i),MHT.get(i)*riv));
 
         }
+
+        HTRI.setC(r);
+
+        HTRI.setR(c);
 
     }
 
@@ -465,6 +481,8 @@ public class MatrixH {
 
     public void printHMatrix(){
 
+        System.out.print("\n************H"+getPQType(KPQ)+"************\n\n");
+
         for (int m = 0; m < measurementTable.getNOM(); m++) {
 
             for (int i = 0; i < busNumbers.getNOB(); i++) {
@@ -473,11 +491,11 @@ public class MatrixH {
 
                 if (data!=null){
 
-                    System.out.printf("%7.4f,",data);
+                    System.out.printf("%9.4f,",data);
 
                 }else {
 
-                    System.out.print("       ,");
+                    System.out.print("         ,");
 
                 }
 
@@ -493,6 +511,8 @@ public class MatrixH {
 
     public void printHTMatrix(){
 
+        System.out.print("\n************HT"+getPQType(KPQ)+"************\n\n");
+
         for (int i = 0; i < busNumbers.getNOB(); i++) {
 
             for (int m = 0; m < measurementTable.getNOM(); m++) {
@@ -501,11 +521,11 @@ public class MatrixH {
 
                 if (data!=null){
 
-                    System.out.printf("%7.4f,", data);
+                    System.out.printf("%9.4f,", data);
 
                 }else {
 
-                    System.out.print("       ,");
+                    System.out.print("         ,");
 
                 }
 
@@ -557,5 +577,9 @@ public class MatrixH {
 
     public int getHTC(){
         return MH.size()-1;
+    }
+
+    public int getKPQ() {
+        return KPQ;
     }
 }

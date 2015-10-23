@@ -4,6 +4,8 @@ import ic.app.se.simple.common.ColumnAndValue;
 import ic.app.se.simple.common.Constants;
 import ic.app.se.simple.common.SparseMatrix;
 import ic.app.se.simple.data.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,8 @@ import static ic.app.se.simple.common.Utils.gaussElimination;
  * Created by hjh on 15-10-19.
  */
 public class Estimator {
+
+    public static Logger logger=LoggerFactory.getLogger(Estimator.class);
 
     private boolean kp;
 
@@ -47,6 +51,8 @@ public class Estimator {
 
     private SparseMatrix HTRI;
 
+    private SparseMatrix HTH;
+
 
     public Estimator(PowerGrid powerGrid){
 
@@ -60,8 +66,6 @@ public class Estimator {
 
         this.busNumbers=powerGrid.getBusNumbers();
 
-        this.Y=powerGrid.getMatrixY();
-
         this.branchTable=powerGrid.getBranchTable();
 
         bdm=new ArrayList<Integer>();
@@ -74,7 +78,25 @@ public class Estimator {
 
         x=powerGrid.getState().getX();
 
-        this.HTRI=powerGrid.getMatrixH().getHTRI();
+    }
+
+    private void getMatrix(int kpq){
+
+        if (kpq!=0&&kpq!=1){
+
+            logger.error("KPQ {} input invalid!",kpq);
+
+            return;
+
+        }
+
+        powerGrid.setKPQ(kpq);
+
+        Y=powerGrid.getMatrixY();
+
+        HTRI=powerGrid.getMatrixH().getHTRI();
+
+        HTH=powerGrid.getMatrixHTH().getMatrix();
 
     }
 
@@ -89,7 +111,7 @@ public class Estimator {
         while (it++<itLimit){
 
 //            p
-            powerGrid.setKPQ(0);
+            getMatrix(0);
 
             computeState();
 
@@ -110,7 +132,7 @@ public class Estimator {
             }
 
 //            q
-            powerGrid.setKPQ(1);
+            getMatrix(1);
 
             computeState();
 
@@ -144,7 +166,7 @@ public class Estimator {
 
         computeX();
 
-        gaussElimination(powerGrid.getMatrixHTH().getMatrix(),uju);
+        gaussElimination(HTH,uju);
 
         solveLinearFunction(uju);
 

@@ -6,6 +6,8 @@ import ic.app.se.simple.common.SparseMatrix;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ic.app.se.simple.common.Utils.getPQType;
+
 /**
  * Created by hjh on 15-10-14.
  */
@@ -17,27 +19,28 @@ public class MatrixHTH {
 
     private SparseMatrix HTRI;
 
-    private int NOB;
+    private int order;
 
     public MatrixHTH(BusNumbers busNumbers, MatrixH matrixH){
 
         this.matrixH=matrixH;
 
-        this.NOB=busNumbers.getNOB();
-
         this.HTRI=matrixH.getHTRI();
 
         matrix=new SparseMatrix();
 
-        matrix.setC(matrixH.getHC());
+//        ignore reference bus
+        order=busNumbers.getNOB()-1;
 
-        matrix.setR(matrixH.getHC());
+        matrix.setC(order);
+
+        matrix.setR(order);
 
         computeHTH();
 
         computeHTRIH();
 
-        matrix.print();
+        matrix.print("HTH"+getPQType(matrixH.getKPQ()));
 
     }
 
@@ -51,7 +54,7 @@ public class MatrixHTH {
 
         IHTH.add(0);
 
-        for (int i = 0; i < NOB; i++) {
+        for (int i = 0; i < order; i++) {
 
             List<Integer> tmp=new ArrayList<Integer>();
 
