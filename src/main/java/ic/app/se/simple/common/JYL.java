@@ -8,21 +8,21 @@ public class JYL{
 
     private int J;
 
-    private int GBI;
+    private GB gb;
 
     public int getJ() {
         return J;
     }
 
-    public int getGBI() {
-        return GBI;
+    public GB getGb() {
+        return gb;
     }
 
     public void setJ(int j) {
         J = j;
     }
 
-    public void setGBI(int GBI) {
-        this.GBI = GBI;
+    public void setGb(GB gb) {
+        this.gb = gb;
     }
 }

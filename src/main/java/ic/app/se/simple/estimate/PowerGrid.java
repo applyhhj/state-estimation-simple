@@ -54,7 +54,7 @@ public class PowerGrid {
 
     public void estimate(){
 
-        state.reset();
+//        state.reset();
 
         estimator.estimate();
 
@@ -91,6 +91,8 @@ public class PowerGrid {
         matrixHTHP=new MatrixHTH(busNumbers,matrixHP);
 
         state=new EstimatedState(busNumbers.getNOB(),measurementTable.getNOM(),measurementTable.getV0(),0);
+
+        state.setTIO(busNumbers.getTIO());
 
         estimator=new Estimator(this);
 

@@ -170,15 +170,15 @@ public class MatrixH {
 
                         double YK=branchTable.getYk()[L-1];
 
-                        double B=-X/(R*R+X*X);
+                        double B=X/(R*R+X*X);
 
                         if (YK>0){
 
                             if (type==5){
 
-                                H.add((2*B/YK-B)/YK);
+                                H.add(-(2*B/YK-B)/YK);
 
-                                H.add(-B/YK);
+                                H.add(B/YK);
 
                             }else {
 
@@ -191,16 +191,16 @@ public class MatrixH {
                         }else {
 
                             if (type==5){
-//
+
                                 H.add(B-2*(B-YK));
 
-                                H.add(-B);
+                                H.add(B);
 
                             }else {
 
-                                H.add(-B);
+                                H.add(B);
 
-                                H.add(B-2*YK);
+                                H.add(-B-2*YK);
 
                             }
 

@@ -9,29 +9,19 @@ public class JJY{
     //        this is the column index in the matrix, it starts from zero
     private int J;
 
-    private double GIJ;
-
-    private double BIJ;
+    private GB gb;
 
 
-    public double getBIJ() {
-        return BIJ;
-    }
-
-    public double getGIJ() {
-        return GIJ;
+    public GB getGb() {
+        return gb;
     }
 
     public int getJ() {
         return J;
     }
 
-    public void setBIJ(double BIJ) {
-        this.BIJ = BIJ;
-    }
-
-    public void setGIJ(double GIJ) {
-        this.GIJ = GIJ;
+    public void setGb(GB gb) {
+        this.gb = gb;
     }
 
     public void setJ(int j) {

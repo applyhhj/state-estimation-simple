@@ -1,5 +1,6 @@
 package ic.app.se.simple.data;
 
+import ic.app.se.simple.common.GB;
 import ic.app.se.simple.common.JJY;
 import ic.app.se.simple.common.JYL;
 import org.slf4j.Logger;
@@ -90,12 +91,14 @@ public class MatrixY {
 
         int idx=0;
 
-        boolean started;
+        jjyList.clear();
+
+        IY.clear();
+
+        IY.add(0);
 
 //        use internal bus number. starts from 1
         for (int i = 1; i < busNumbers.getNOB() + 1; i++) {
-
-            started=false;
 
             for (int j =i+ 1; j < busNumbers.getNOB() + 1; j++) {
 
@@ -108,18 +111,14 @@ public class MatrixY {
 
                         JJY jjy=new JJY();
 
+                        jjy.setGb(new GB());
+
 //                        stores index
                         jjy.setJ(j-1);
 
-                        jjyList.add(idx++,jjy);
+                        jjyList.add(jjy);
 
-                        if (!started){
-
-                            started=true;
-
-                            IY.add(idx-1);
-
-                        }
+                        idx++;
 
                     }
 
@@ -127,16 +126,11 @@ public class MatrixY {
 
             }
 
-//            no element, assign the former index
-            if (!started){
-
-                IY.add(idx==0?0:idx-1);
-
-            }
+            IY.add(idx);
 
         }
 
-        IY.add(idx==0?0:idx-1);
+        IY.add(idx);
 
     }
 
@@ -144,12 +138,14 @@ public class MatrixY {
 
         int idx=0;
 
-        boolean started;
+        jylList.clear();
+
+        IYL.clear();
+
+        IYL.add(0);
 
 //        use internal bus number. starts from 1
         for (int i = 1; i < busNumbers.getNOB() + 1; i++) {
-
-            started=false;
 
             for (int j =1; j < i; j++) {
 
@@ -160,20 +156,25 @@ public class MatrixY {
                             (busNumbers.getTIO().get(j)==branchTable.getI()[k]&&
                                     busNumbers.getTIO().get(i)==branchTable.getJ()[k])){
 
+                        if (getNonDigGB(j,i)==null){
+
+                            logger.error("Upper triangular matrix is not computed!!");
+
+                            return;
+
+                        }
+
                         JYL jyl=new JYL();
+
+//                        set reference
+                        jyl.setGb(getNonDigGB(j,i).getGb());
 
 //                        stores index, not bus number
                         jyl.setJ(j-1);
 
-                        jylList.add(idx++,jyl);
+                        jylList.add(jyl);
 
-                        if (!started){
-
-                            started=true;
-
-                            IYL.add(idx-1);
-
-                        }
+                        idx++;
 
                     }
 
@@ -181,16 +182,11 @@ public class MatrixY {
 
             }
 
-//            no element, assign the former index
-            if (!started){
-
-                IYL.add(idx==0?0:idx-1);
-
-            }
+            IYL.add(idx);
 
         }
 
-        IYL.add(idx==0?0:idx-1);
+        IYL.add(idx);
 
     }
 
@@ -314,7 +310,7 @@ public class MatrixY {
 
             }else {
 
-                return jjytmp.getGIJ();
+                return jjytmp.getGb().getG();
 
             }
 
@@ -346,7 +342,7 @@ public class MatrixY {
 
             }else {
 
-                return jjytmp.getBIJ();
+                return jjytmp.getGb().getB();
 
             }
 
@@ -374,7 +370,7 @@ public class MatrixY {
 
             if (jjytmp!=null) {
 
-                jjytmp.setGIJ(value);
+                jjytmp.getGb().setG(value);
 
             }
 
@@ -402,7 +398,7 @@ public class MatrixY {
 
             if (jjytmp!=null) {
 
-                jjytmp.setBIJ(value);
+                jjytmp.getGb().setB(value);
 
             }
 
@@ -426,7 +422,7 @@ public class MatrixY {
 
         }
 
-        for (int k = IY.get(i-1); k <= IY.get(Math.min(i,busNumbers.getNOB()-1)); k++) {
+        for (int k = IY.get(i-1); k < IY.get(i); k++) {
 
             if(jjyList.get(k).getJ()==j-1){
 

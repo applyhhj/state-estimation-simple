@@ -244,7 +244,8 @@ public class Estimator {
 //        ignore reference bus
         for (int i = 0; i < x.size()-1; i++) {
 
-            st.set(i,st.get(i)+x.get(i));
+//            it seems we get the opposite operator pp. 80
+            st.set(i,st.get(i)-x.get(i));
 
         }
 
@@ -281,6 +282,7 @@ public class Estimator {
 
                 yk=branchTable.getYk()[loc-1];
 
+//                here iint jint are the bus numbers
                 G=Y.getGIJ(iint,jint);
 
                 B=Y.getBIJ(iint,jint);
@@ -380,9 +382,10 @@ public class Estimator {
 
                             jint=iint;
 
-                            G=Y.getGIJ(iint,iint);
+//                            here iint jint are indices
+                            G=Y.getGIJ(iint+1,iint+1);
 
-                            B=Y.getBIJ(iint,iint);
+                            B=Y.getBIJ(iint+1,iint+1);
 
                             up=true;
 
@@ -392,17 +395,17 @@ public class Estimator {
 
                                 jint = Y.getJjyList().get(idx).getJ();
 
-                                G=Y.getJjyList().get(idx).getGIJ();
+                                G=Y.getJjyList().get(idx).getGb().getG();
 
-                                B=Y.getJjyList().get(idx).getBIJ();
+                                B=Y.getJjyList().get(idx).getGb().getB();
 
                             }else {
 
                                 jint=Y.getJylList().get(idx).getJ();
 
-                                G=Y.getJjyList().get(Y.getJylList().get(idx).getGBI()).getGIJ();
+                                G=Y.getJylList().get(idx).getGb().getG();
 
-                                B=Y.getJjyList().get(Y.getJylList().get(idx).getGBI()).getBIJ();
+                                B=Y.getJylList().get(idx).getGb().getB();
 
                             }
 
