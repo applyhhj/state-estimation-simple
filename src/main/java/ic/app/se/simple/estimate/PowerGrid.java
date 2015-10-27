@@ -5,6 +5,7 @@ import ic.app.se.simple.data.*;
 import java.util.List;
 
 import static ic.app.se.simple.common.Utils.readStringFromFile;
+
 /**
  * Created by hjh on 15-10-9.
  */
@@ -36,23 +37,23 @@ public class PowerGrid {
 
     private int KPQ;
 
-    public PowerGrid(){
+    public PowerGrid() {
 
-        KPQ=0;
+        KPQ = 0;
 
-        branchTable=new BranchTable();
+        branchTable = new BranchTable();
 
-        measurementTable=new MeasurementTable();
+        measurementTable = new MeasurementTable();
 
     }
 
-    public void measure(){
+    public void measure() {
 
         measurementTable.generateMeasurement(true);
 
     }
 
-    public void estimate(){
+    public void estimate() {
 
 //        state.reset();
 
@@ -68,33 +69,33 @@ public class PowerGrid {
         this.id = id;
     }
 
-    public void initData(String filepath){
+    public void initData(String filepath) {
 
-        List<String> content=readStringFromFile(filepath);
+        List<String> content = readStringFromFile(filepath);
 
         branchTable.loadData(content);
 
         measurementTable.loadData(content);
 
-        busNumbers=new BusNumbers(branchTable,measurementTable);
+        busNumbers = new BusNumbers(branchTable, measurementTable);
 
-        matrixYP =new MatrixY(branchTable,busNumbers,0);
+        matrixYP = new MatrixY(branchTable, busNumbers, 0);
 
-        matrixYQ =new MatrixY(branchTable,busNumbers,1);
+        matrixYQ = new MatrixY(branchTable, busNumbers, 1);
 
-        matrixHQ =new MatrixH(branchTable,busNumbers,measurementTable, matrixYQ);
+        matrixHQ = new MatrixH(branchTable, busNumbers, measurementTable, matrixYQ);
 
-        matrixHP =new MatrixH(branchTable,busNumbers,measurementTable, matrixYP);
+        matrixHP = new MatrixH(branchTable, busNumbers, measurementTable, matrixYP);
 
-        matrixHTHQ=new MatrixHTH(busNumbers,matrixHQ);
+        matrixHTHQ = new MatrixHTH(busNumbers, matrixHQ);
 
-        matrixHTHP=new MatrixHTH(busNumbers,matrixHP);
+        matrixHTHP = new MatrixHTH(busNumbers, matrixHP);
 
-        state=new EstimatedState(busNumbers.getNOB(),measurementTable.getNOM(),measurementTable.getV0(),0);
+        state = new EstimatedState(busNumbers.getNOB(), measurementTable.getNOM(), measurementTable.getV0(), 0);
 
         state.setTIO(busNumbers.getTIO());
 
-        estimator=new Estimator(this);
+        estimator = new Estimator(this);
 
     }
 
@@ -116,11 +117,11 @@ public class PowerGrid {
 
     public MatrixY getMatrixY() {
 
-        if (KPQ==1){
+        if (KPQ == 1) {
 
             return matrixYQ;
 
-        }else {
+        } else {
 
             return matrixYP;
 
@@ -130,11 +131,11 @@ public class PowerGrid {
 
     public MatrixH getMatrixH() {
 
-        if (KPQ==1){
+        if (KPQ == 1) {
 
             return matrixHQ;
 
-        }else {
+        } else {
 
             return matrixHP;
 
@@ -144,11 +145,11 @@ public class PowerGrid {
 
     public MatrixHTH getMatrixHTH() {
 
-        if (KPQ==1){
+        if (KPQ == 1) {
 
             return matrixHTHQ;
 
-        }else {
+        } else {
 
             return matrixHTHP;
 
