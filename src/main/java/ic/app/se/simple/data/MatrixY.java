@@ -20,7 +20,7 @@ public class MatrixY {
     //    all get set method uses internal bus number as input!!!!!
     //    however sparse matrix stores index
 
-    public Logger logger= LoggerFactory.getLogger(MatrixY.class);
+    public Logger logger = LoggerFactory.getLogger(MatrixY.class);
 
     private int KPQ;
 
@@ -28,14 +28,14 @@ public class MatrixY {
 
     private BusNumbers busNumbers;
 
-//    upper triangular matrix
+    //    upper triangular matrix
 //    start address
     private List<Integer> IY;
 
-//    value and column, this is the index it is the internal bus number minus 1
+    //    value and column, this is the index it is the internal bus number minus 1
     private List<JJY> jjyList;
 
-//   lower triangular matrix
+    //   lower triangular matrix
 //    start address
     private List<Integer> IYL;
 
@@ -45,30 +45,30 @@ public class MatrixY {
 
     private double[] BII;
 
-//    Y is a NOB*NOB matrix, so matrix order equals NOB
+    //    Y is a NOB*NOB matrix, so matrix order equals NOB
     private int order;
 
-    public MatrixY(BranchTable branchTable, BusNumbers busNumbers,int kpq){
+    public MatrixY(BranchTable branchTable, BusNumbers busNumbers, int kpq) {
 
-        KPQ=kpq;
+        KPQ = kpq;
 
-        this.branchTable=branchTable;
+        this.branchTable = branchTable;
 
-        this.busNumbers=busNumbers;
+        this.busNumbers = busNumbers;
 
         setOrder();
 
-        jjyList=new ArrayList<JJY>(branchTable.getNOE());
+        jjyList = new ArrayList<JJY>(branchTable.getNOE());
 
-        IY=new ArrayList<Integer>();
+        IY = new ArrayList<Integer>();
 
-        jylList=new ArrayList<JYL>();
+        jylList = new ArrayList<JYL>();
 
-        IYL=new ArrayList<Integer>();
+        IYL = new ArrayList<Integer>();
 
-        GII=new double[busNumbers.getNOB()];
+        GII = new double[busNumbers.getNOB()];
 
-        BII=new double[busNumbers.getNOB()];
+        BII = new double[busNumbers.getNOB()];
 
         compute();
 
@@ -76,7 +76,7 @@ public class MatrixY {
 
     }
 
-    public void compute(){
+    public void compute() {
 
         computeJJY();
 
@@ -86,10 +86,10 @@ public class MatrixY {
 
     }
 
-//    upper triangle matrix
-    private void computeJJY(){
+    //    upper triangle matrix
+    private void computeJJY() {
 
-        int idx=0;
+        int idx = 0;
 
         jjyList.clear();
 
@@ -100,21 +100,21 @@ public class MatrixY {
 //        use internal bus number. starts from 1
         for (int i = 1; i < busNumbers.getNOB() + 1; i++) {
 
-            for (int j =i+ 1; j < busNumbers.getNOB() + 1; j++) {
+            for (int j = i + 1; j < busNumbers.getNOB() + 1; j++) {
 
                 for (int k = 0; k < branchTable.getNOE(); k++) {
 
-                    if ((busNumbers.getTIO().get(i)==branchTable.getI()[k]&&
-                            busNumbers.getTIO().get(j)==branchTable.getJ()[k])||
-                            (busNumbers.getTIO().get(j)==branchTable.getI()[k]&&
-                                    busNumbers.getTIO().get(i)==branchTable.getJ()[k])){
+                    if ((busNumbers.getTIO().get(i) == branchTable.getI()[k] &&
+                            busNumbers.getTIO().get(j) == branchTable.getJ()[k]) ||
+                            (busNumbers.getTIO().get(j) == branchTable.getI()[k] &&
+                                    busNumbers.getTIO().get(i) == branchTable.getJ()[k])) {
 
-                        JJY jjy=new JJY();
+                        JJY jjy = new JJY();
 
                         jjy.setGb(new GB());
 
 //                        stores index
-                        jjy.setJ(j-1);
+                        jjy.setJ(j - 1);
 
                         jjyList.add(jjy);
 
@@ -134,9 +134,9 @@ public class MatrixY {
 
     }
 
-    private void computeJYL(){
+    private void computeJYL() {
 
-        int idx=0;
+        int idx = 0;
 
         jylList.clear();
 
@@ -147,16 +147,16 @@ public class MatrixY {
 //        use internal bus number. starts from 1
         for (int i = 1; i < busNumbers.getNOB() + 1; i++) {
 
-            for (int j =1; j < i; j++) {
+            for (int j = 1; j < i; j++) {
 
                 for (int k = 0; k < branchTable.getNOE(); k++) {
 
-                    if ((busNumbers.getTIO().get(i)==branchTable.getI()[k]&&
-                            busNumbers.getTIO().get(j)==branchTable.getJ()[k])||
-                            (busNumbers.getTIO().get(j)==branchTable.getI()[k]&&
-                                    busNumbers.getTIO().get(i)==branchTable.getJ()[k])){
+                    if ((busNumbers.getTIO().get(i) == branchTable.getI()[k] &&
+                            busNumbers.getTIO().get(j) == branchTable.getJ()[k]) ||
+                            (busNumbers.getTIO().get(j) == branchTable.getI()[k] &&
+                                    busNumbers.getTIO().get(i) == branchTable.getJ()[k])) {
 
-                        if (getNonDigGB(j,i)==null){
+                        if (getNonDigGB(j, i) == null) {
 
                             logger.error("Upper triangular matrix is not computed!!");
 
@@ -164,13 +164,13 @@ public class MatrixY {
 
                         }
 
-                        JYL jyl=new JYL();
+                        JYL jyl = new JYL();
 
 //                        set reference
-                        jyl.setGb(getNonDigGB(j,i).getGb());
+                        jyl.setGb(getNonDigGB(j, i).getGb());
 
 //                        stores index, not bus number
-                        jyl.setJ(j-1);
+                        jyl.setJ(j - 1);
 
                         jylList.add(jyl);
 
@@ -190,75 +190,75 @@ public class MatrixY {
 
     }
 
-    private void computeYMatrix(){
+    private void computeYMatrix() {
 
-        double R,X,K,G,B,Z2;
+        double R, X, K, G, B, Z2;
 
-        int I,J;
+        int I, J;
 
         for (int i = 0; i < branchTable.getNOE(); i++) {
 
-            R=branchTable.getRij()[i];
+            R = branchTable.getRij()[i];
 
-            X=branchTable.getXij()[i];
+            X = branchTable.getXij()[i];
 
-            I=busNumbers.getTOI().get(branchTable.getI()[i]);
+            I = busNumbers.getTOI().get(branchTable.getI()[i]);
 
-            J=busNumbers.getTOI().get(branchTable.getJ()[i]);
+            J = busNumbers.getTOI().get(branchTable.getJ()[i]);
 
-            if (KPQ==1){
+            if (KPQ == 1) {
 
-                Z2=R*R+X*X;
+                Z2 = R * R + X * X;
 
-                G=R/Z2;
+                G = R / Z2;
 
-                B=-X/Z2;
+                B = -X / Z2;
 
-                K=branchTable.getYk()[i];
+                K = branchTable.getYk()[i];
 
-            }else {
+            } else {
 
-                G=K=0;
+                G = K = 0;
 
-                B=-1/X;
+                B = -1 / X;
 
             }
 
-            if (I==J){
+            if (I == J) {
 
-                setGIJ(I,I,getGIJ(I,I)+G);
+                setGIJ(I, I, getGIJ(I, I) + G);
 
-                setBIJ(I,I,getBIJ(I,I)+B-K);
+                setBIJ(I, I, getBIJ(I, I) + B - K);
 
-            }else {
+            } else {
 
-                if (K>0){
+                if (K > 0) {
 
-                    setGIJ(J,J,getGIJ(J,J)+G);
+                    setGIJ(J, J, getGIJ(J, J) + G);
 
-                    setBIJ(J,J,getBIJ(J,J)+B);
+                    setBIJ(J, J, getBIJ(J, J) + B);
 
-                    setGIJ(I,I,getGIJ(I,I)+G/K/K);
+                    setGIJ(I, I, getGIJ(I, I) + G / K / K);
 
-                    setBIJ(I,I,getBIJ(I,I)+B/K/K);
+                    setBIJ(I, I, getBIJ(I, I) + B / K / K);
 
-                    setGIJ(I,J,getGIJ(I,J)-G/K);
+                    setGIJ(I, J, getGIJ(I, J) - G / K);
 
-                    setBIJ(I,J,getBIJ(I,J)-B/K);
+                    setBIJ(I, J, getBIJ(I, J) - B / K);
 
-                }else {
+                } else {
 
-                    setGIJ(I,J,getGIJ(I,J)-G);
+                    setGIJ(I, J, getGIJ(I, J) - G);
 
-                    setBIJ(I,J,getBIJ(I,J)-B);
+                    setBIJ(I, J, getBIJ(I, J) - B);
 
-                    setGIJ(J,J,getGIJ(J,J)+G);
+                    setGIJ(J, J, getGIJ(J, J) + G);
 
-                    setBIJ(J,J,getBIJ(J,J)+B-K);
+                    setBIJ(J, J, getBIJ(J, J) + B - K);
 
-                    setGIJ(I,I,getGIJ(I,I)+G);
+                    setGIJ(I, I, getGIJ(I, I) + G);
 
-                    setBIJ(I,I,getBIJ(I,I)+B-K);
+                    setBIJ(I, I, getBIJ(I, I) + B - K);
 
                 }
 
@@ -268,15 +268,15 @@ public class MatrixY {
 
     }
 
-    private void setOrder(){
+    private void setOrder() {
 
-        order=busNumbers.getNOB();
+        order = busNumbers.getNOB();
 
     }
 
-    private boolean numberValid(int i,int j){
+    private boolean numberValid(int i, int j) {
 
-        if (i<1||i>order||j<1||j>order){
+        if (i < 1 || i > order || j < 1 || j > order) {
 
             return false;
 
@@ -286,9 +286,9 @@ public class MatrixY {
 
     }
 
-    public Double getGIJ(int i,int j){
+    public Double getGIJ(int i, int j) {
 
-        if (!numberValid(i,j)){
+        if (!numberValid(i, j)) {
 
             logger.error("Input bus number invalid!!");
 
@@ -296,19 +296,19 @@ public class MatrixY {
 
         }
 
-        if (i==j){
+        if (i == j) {
 
-            return GII[i-1];
+            return GII[i - 1];
 
-        }else {
+        } else {
 
-            JJY jjytmp= getNonDigGB(i, j);
+            JJY jjytmp = getNonDigGB(i, j);
 
-            if (jjytmp==null){
+            if (jjytmp == null) {
 
                 return null;
 
-            }else {
+            } else {
 
                 return jjytmp.getGb().getG();
 
@@ -318,9 +318,9 @@ public class MatrixY {
 
     }
 
-    public Double getBIJ(int i,int j){
+    public Double getBIJ(int i, int j) {
 
-        if (!numberValid(i,j)){
+        if (!numberValid(i, j)) {
 
             logger.error("Input bus number invalid!!");
 
@@ -328,19 +328,19 @@ public class MatrixY {
 
         }
 
-        if (i==j){
+        if (i == j) {
 
-            return BII[i-1];
+            return BII[i - 1];
 
-        }else {
+        } else {
 
-            JJY jjytmp= getNonDigGB(i, j);
+            JJY jjytmp = getNonDigGB(i, j);
 
-            if (jjytmp==null){
+            if (jjytmp == null) {
 
                 return null;
 
-            }else {
+            } else {
 
                 return jjytmp.getGb().getB();
 
@@ -350,9 +350,9 @@ public class MatrixY {
 
     }
 
-    public void setGIJ(int i,int j,double value){
+    public void setGIJ(int i, int j, double value) {
 
-        if (!numberValid(i,j)){
+        if (!numberValid(i, j)) {
 
             logger.error("Input bus number invalid!!");
 
@@ -360,15 +360,15 @@ public class MatrixY {
 
         }
 
-        if (i==j){
+        if (i == j) {
 
-            GII[i-1]=value;
+            GII[i - 1] = value;
 
-        }else {
+        } else {
 
-            JJY jjytmp= getNonDigGB(i, j);
+            JJY jjytmp = getNonDigGB(i, j);
 
-            if (jjytmp!=null) {
+            if (jjytmp != null) {
 
                 jjytmp.getGb().setG(value);
 
@@ -378,9 +378,9 @@ public class MatrixY {
 
     }
 
-    public void setBIJ(int i,int j,double value){
+    public void setBIJ(int i, int j, double value) {
 
-        if (!numberValid(i,j)){
+        if (!numberValid(i, j)) {
 
             logger.error("Input bus number invalid!!");
 
@@ -388,15 +388,15 @@ public class MatrixY {
 
         }
 
-        if (i==j){
+        if (i == j) {
 
-            BII[i-1]=value;
+            BII[i - 1] = value;
 
-        }else {
+        } else {
 
-            JJY jjytmp= getNonDigGB(i, j);
+            JJY jjytmp = getNonDigGB(i, j);
 
-            if (jjytmp!=null) {
+            if (jjytmp != null) {
 
                 jjytmp.getGb().setB(value);
 
@@ -406,25 +406,25 @@ public class MatrixY {
 
     }
 
-    private JJY getNonDigGB(int i, int j){
+    private JJY getNonDigGB(int i, int j) {
 
-        if (i==j){
+        if (i == j) {
 
             return null;
 
-        }else if (i>j){
+        } else if (i > j) {
 
-            int tmp=i;
+            int tmp = i;
 
-            i=j;
+            i = j;
 
-            j=tmp;
+            j = tmp;
 
         }
 
-        for (int k = IY.get(i-1); k < IY.get(i); k++) {
+        for (int k = IY.get(i - 1); k < IY.get(i); k++) {
 
-            if(jjyList.get(k).getJ()==j-1){
+            if (jjyList.get(k).getJ() == j - 1) {
 
                 return jjyList.get(k);
 
@@ -436,21 +436,21 @@ public class MatrixY {
 
     }
 
-    public void printMatrix(){
+    public void printMatrix() {
 
-        System.out.print("\n************Y"+getPQType(getKPQ())+"************\n\n");
+        System.out.print("\n************Y" + getPQType(getKPQ()) + "************\n\n");
 
         for (int i = 0; i < busNumbers.getNOB(); i++) {
 
             for (int j = 0; j < busNumbers.getNOB(); j++) {
 
-                if (getGIJ(i + 1, j + 1)!=null||getBIJ(i + 1, j + 1)!=null) {
+                if (getGIJ(i + 1, j + 1) != null || getBIJ(i + 1, j + 1) != null) {
 
-                    System.out.printf("%7.4f + j%7.4f,",getGIJ(i + 1, j + 1),getBIJ(i + 1, j + 1));
+                    System.out.printf("%7.4f + j%7.4f,", getGIJ(i + 1, j + 1), getBIJ(i + 1, j + 1));
 
-                }else {
+                } else {
 
-                        System.out.print("                  ,");
+                    System.out.print("                  ,");
 
                 }
 
