@@ -10,12 +10,12 @@ import static ic.app.se.simple.common.Utils.loadSectionData;
 
 /**
  * Created by hjh on 15-10-9.
- *
+ * <p>
  * Page 227 ELE
  */
 public class BranchTable {
 
-    public static Logger logger= LoggerFactory.getLogger(BranchTable.class);
+    public static Logger logger = LoggerFactory.getLogger(BranchTable.class);
 
     private int NOE;
 
@@ -78,27 +78,27 @@ public class BranchTable {
         this.yk = yk;
     }
 
-    public void loadData(List<String> data){
+    public void loadData(List<String> data) {
 
-        List<String> branchData=loadSectionData(data, Constants.CDF.BRANCH_SECTION_START_KEY);
+        List<String> branchData = loadSectionData(data, Constants.CDF.BRANCH_SECTION_START_KEY);
 
-        int[] itmp=new int[branchData.size()];
+        int[] itmp = new int[branchData.size()];
 
-        int[] jtmp=new int[branchData.size()];
+        int[] jtmp = new int[branchData.size()];
 
-        double[] rijtmp=new double[branchData.size()];
+        double[] rijtmp = new double[branchData.size()];
 
-        double[] xijtmp=new double[branchData.size()];
+        double[] xijtmp = new double[branchData.size()];
 
-        double[] yktmp=new double[branchData.size()];
+        double[] yktmp = new double[branchData.size()];
 
-        for (int k = 0; k < branchData.size(); k++){
+        for (int k = 0; k < branchData.size(); k++) {
 
-            String entry=branchData.get(k);
+            String entry = branchData.get(k);
 
-            String col[]=entry.trim().split(" +");
+            String col[] = entry.trim().split(" +");
 
-            if (col.length!=Constants.CDF.BRANCH_SECTION_NUMBER_OF_COLUMN) {
+            if (col.length != Constants.CDF.BRANCH_SECTION_NUMBER_OF_COLUMN) {
 
                 logger.error("Input data error: {}", entry);
 
@@ -106,29 +106,29 @@ public class BranchTable {
 
             }
 
-            itmp[k]=Integer.parseInt(col[0]);
+            itmp[k] = Integer.parseInt(col[0]);
 
-            jtmp[k]=Integer.parseInt(col[1]);
+            jtmp[k] = Integer.parseInt(col[1]);
 
-            rijtmp[k]=Double.parseDouble(col[6]);
+            rijtmp[k] = Double.parseDouble(col[6]);
 
-            xijtmp[k]=Double.parseDouble(col[7]);
+            xijtmp[k] = Double.parseDouble(col[7]);
 
-            double y=Double.parseDouble(col[8]);
+            double y = Double.parseDouble(col[8]);
 
-            double tk=Double.parseDouble(col[14]);
+            double tk = Double.parseDouble(col[14]);
 
-            if (tk>0){
+            if (tk > 0) {
 
-                yktmp[k]=tk;
+                yktmp[k] = tk;
 
-            }else if (y>0){
+            } else if (y > 0) {
 
-                yktmp[k]=-y;
+                yktmp[k] = -y;
 
-            }else {
+            } else {
 
-                yktmp[k]=0.0;
+                yktmp[k] = 0.0;
 
             }
 
