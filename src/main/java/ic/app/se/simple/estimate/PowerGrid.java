@@ -48,7 +48,7 @@ public class PowerGrid {
 
     public void measure(){
 
-        measurementTable.generateMeasurement();
+        measurementTable.generateMeasurement(false);
 
     }
 

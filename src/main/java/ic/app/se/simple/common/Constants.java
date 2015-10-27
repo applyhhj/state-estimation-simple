@@ -15,8 +15,8 @@ public abstract class Constants {
 
     public abstract class ESTIMATOR{
 
-        public static final double ERR_REC =1e-1;
-        public static final double ERR_THETA=1e-2;
+        public static final double ERR_REC =10;
+        public static final double ERR_THETA=1e-3;
         public static final double ERR_V=1e-2;
 
     }

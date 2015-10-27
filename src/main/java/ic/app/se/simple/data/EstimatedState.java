@@ -133,6 +133,20 @@ public class EstimatedState {
 
     }
 
+    public void printRes(){
+
+        System.out.print("\nRes:\n");
+
+        for (int i = 0; i < res.size(); i++) {
+
+            System.out.printf("%7.2f   ",res.get(i));
+
+        }
+
+        System.out.print("\n");
+
+    }
+
     public void reset(){
 
         for (int i = 0; i < ve.size(); i++) {

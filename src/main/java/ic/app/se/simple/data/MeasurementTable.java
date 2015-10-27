@@ -103,7 +103,30 @@ public class MeasurementTable {
 
     }
 
-    public void generateMeasurement(){
+    public void generateMeasurement(boolean rand){
+
+        if (!rand){
+
+            z[0]=18.71;
+            z[1]=34.05;
+            z[2]=41.79;
+            z[3]=37.96;
+            z[4]=-19.10;
+            z[5]=-2.24;
+            z[6]=17.55;
+            z[7]=-10.74;
+            z[8]=132.57;
+            z[9]=42.61;
+            z[10]=-49.49;
+            z[11]=-41.93;
+            z[12]=-193.22;
+            z[13]=-71.08;
+            z[14]=112.15;
+            z[15]=110.99;
+
+            return;
+
+        }
 
         for (int i = 0; i < z.length; i++) {
 

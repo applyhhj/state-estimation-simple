@@ -17,7 +17,7 @@ import static ic.app.se.simple.common.Utils.gaussElimination;
  */
 public class Estimator {
 
-    public static Logger logger=LoggerFactory.getLogger(Estimator.class);
+    public static Logger logger = LoggerFactory.getLogger(Estimator.class);
 
     private boolean kp;
 
@@ -59,39 +59,39 @@ public class Estimator {
 
     private int kpq;
 
-    public Estimator(PowerGrid powerGrid){
+    public Estimator(PowerGrid powerGrid) {
 
-        this.powerGrid=powerGrid;
+        this.powerGrid = powerGrid;
 
-        this.itLimit=100;
+        this.itLimit = 100;
 
-        this.measurementTable=powerGrid.getMeasurementTable();
+        this.measurementTable = powerGrid.getMeasurementTable();
 
-        this.state=powerGrid.getState();
+        this.state = powerGrid.getState();
 
-        this.busNumbers=powerGrid.getBusNumbers();
+        this.busNumbers = powerGrid.getBusNumbers();
 
-        this.branchTable=powerGrid.getBranchTable();
+        this.branchTable = powerGrid.getBranchTable();
 
-        bdm=new ArrayList<Integer>();
+        bdm = new ArrayList<Integer>();
 
-        bd=new ArrayList<Double>();
+        bd = new ArrayList<Double>();
 
-        x=state.getX();
+        x = state.getX();
 
-        jx=0;
+        jx = 0;
 
-        jxb=0;
+        jxb = 0;
 
-        ujuP=new ArrayList<ColumnAndValue>();
+        ujuP = new ArrayList<ColumnAndValue>();
 
-        ujuQ=new ArrayList<ColumnAndValue>();
+        ujuQ = new ArrayList<ColumnAndValue>();
 
         computeUju();
 
     }
 
-    private void computeUju(){
+    private void computeUju() {
 
         powerGrid.setKPQ(0);
 
@@ -105,11 +105,11 @@ public class Estimator {
 
     }
 
-    private void getMatrix(){
+    private void getMatrix() {
 
-        if (kpq!=0&&kpq!=1){
+        if (kpq != 0 && kpq != 1) {
 
-            logger.error("KPQ {} input invalid!",kpq);
+            logger.error("KPQ {} input invalid!", kpq);
 
             return;
 
@@ -117,89 +117,91 @@ public class Estimator {
 
         powerGrid.setKPQ(kpq);
 
-        Y=powerGrid.getMatrixY();
+        Y = powerGrid.getMatrixY();
 
-        HTRI=powerGrid.getMatrixH().getHTRI();
+        HTRI = powerGrid.getMatrixH().getHTRI();
 
-        if (kpq==0){
+        if (kpq == 0) {
 
-            uju=ujuP;
+            uju = ujuP;
 
-        }else {
+        } else {
 
-            uju=ujuQ;
+            uju = ujuQ;
 
         }
 
     }
 
-    public void estimate(){
+    public void estimate() {
 
-        it=0;
+        it = 0;
 
-        kp=false;
+        kp = false;
 
-        kq=false;
+        kq = false;
 
-        while (it++<itLimit){
+        while (it++ < itLimit) {
 
-            kpq=0;
+            kpq = 0;
 
 //            p
             getMatrix();
 
             computeState();
 
-            if (absMax(x)<Constants.ESTIMATOR.ERR_THETA){
+            if (absMax(x) < Constants.ESTIMATOR.ERR_THETA) {
 
-                kp=true;
+                kp = true;
 
-                if (kq){
+                if (kq) {
 
                     break;
 
                 }
 
-            }else {
+            } else {
 
                 correctState(powerGrid.getKPQ());
 
             }
 
-            kpq=1;
+            kpq = 1;
 
 //            q
             getMatrix();
 
             computeState();
 
-            if (absMax(x)<Constants.ESTIMATOR.ERR_V){
+            if (absMax(x) < Constants.ESTIMATOR.ERR_V) {
 
-                kq=true;
+                kq = true;
 
-                if (kp){
+                if (kp) {
 
                     break;
 
                 }
 
-            }else {
+            } else {
 
                 correctState(powerGrid.getKPQ());
 
             }
 
+            state.print();
+
         }
 
-        state.print();
+        System.out.print("Iteration " + it + "\n");
 
     }
 
-    private void computeState(){
+    private void computeState() {
 
         computeResidual();
 
-        zeroResidualRecognition();
+//        zeroResidualRecognition();
 
         computeX();
 
@@ -207,17 +209,17 @@ public class Estimator {
 
     }
 
-    private double absMax(List<Double> list){
+    private double absMax(List<Double> list) {
 
-        double ret=-1,absv;
+        double ret = -1, absv;
 
-        for (Double v:list){
+        for (Double v : list) {
 
-            absv=Math.abs(v);
+            absv = Math.abs(v);
 
-            if (absv>ret){
+            if (absv > ret) {
 
-                ret=absv;
+                ret = absv;
 
             }
 
@@ -227,87 +229,93 @@ public class Estimator {
 
     }
 
-    private void correctState(int isv){
+    private void correctState(int isv) {
 
         List<Double> st;
 
-        if (isv==1){
+        if (isv == 1) {
 
-            st=state.getVe();
+            st = state.getVe();
 
-        }else {
+        } else {
 
-            st=state.getAe();
+            st = state.getAe();
 
         }
 
 //        ignore reference bus
-        for (int i = 0; i < x.size()-1; i++) {
+        for (int i = 0; i < x.size() - 1; i++) {
 
 //            it seems we get the opposite operator pp. 80
-            st.set(i,st.get(i)-x.get(i));
+            st.set(i, st.get(i) - x.get(i));
 
         }
 
     }
 
-    private void computeResidual(){
+    private void computeResidual() {
 
-        int type,loc,iint,jint;
+        int type, loc, iint, jint;
 
-        double G,B,vi,vj,thetaij,sinij,cosij,yk,h;
+        double G, B, vi, vj, thetaij, sinij, cosij, yk, h;
 
-        for (int n = 0; n <measurementTable.getNOM(); n++) {
+        for (int n = 0; n < measurementTable.getNOM(); n++) {
 
-            h=0;
+            h = 0;
 
-            type=measurementTable.getType()[n];
+            type = measurementTable.getType()[n];
 
-            if (type==0||type%2!=kpq){
+            if (type == 0 || type % 2 != kpq) {
 
-                state.getRes().set(n,0.0);
+                state.getRes().set(n, 0.0);
 
                 continue;
 
             }
 
-            if (type>=4){
+            if (type >= 4) {
 
-                loc=measurementTable.getLocation()[n];
+                loc = measurementTable.getLocation()[n];
 
 //                branch use natural order, loc-1 is the array index
-                iint=busNumbers.getTOI().get(branchTable.getI()[loc-1]);
+                iint = busNumbers.getTOI().get(branchTable.getI()[loc - 1]);
 
-                jint=busNumbers.getTOI().get(branchTable.getJ()[loc-1]);
+                jint = busNumbers.getTOI().get(branchTable.getJ()[loc - 1]);
 
-                yk=branchTable.getYk()[loc-1];
+                yk = branchTable.getYk()[loc - 1];
 
 //                here iint jint are the bus numbers
-                G=Y.getGIJ(iint,jint);
+                G = -Y.getGIJ(iint, jint);
 
-                B=Y.getBIJ(iint,jint);
+                B = -Y.getBIJ(iint, jint);
 
-                vi=state.getVe().get(iint-1);
+                if (yk > 0) {
 
-                vj=state.getVe().get(jint-1);
+                    B = B * yk;
 
-                thetaij=state.getAe().get(iint-1)-state.getAe().get(jint-1);
+                }
 
-                sinij=Math.sin(thetaij);
+                vi = state.getVe().get(iint - 1);
 
-                cosij=Math.cos(thetaij);
+                vj = state.getVe().get(jint - 1);
 
-                switch (type){
+                thetaij = state.getAe().get(iint - 1) - state.getAe().get(jint - 1);
+
+                sinij = Math.sin(thetaij);
+
+                cosij = Math.cos(thetaij);
+
+                switch (type) {
 
                     case 4:
 
-                        if (yk<0){
+                        if (yk < 0) {
 
-                            h=vi*(vi*G-vj*(G*cosij+B*sinij));
+                            h = vi * (vi * G - vj * (G * cosij + B * sinij));
 
-                        }else {
+                        } else {
 
-                            h=-vi*vj*B*sinij/yk;
+                            h = -vi * vj * B * sinij / yk;
 
                         }
 
@@ -315,27 +323,29 @@ public class Estimator {
 
                     case 5:
 
-                        if (yk<0){
+                        if (yk < 0) {
 
-                            h=-vi*(vi*(B+yk)-vj*(B*cosij-G*sinij));
+                            h = -vi * (vi * (B + yk) - vj * (B * cosij - G * sinij));
 
-                        }else {
+                        } else {
 
-                            h=(-vi/yk+vj*cosij)*B*vj/yk;
+                            h = (-vi / yk + vj * cosij) * B * vi / yk;
 
                         }
+
+//                        h=-h;
 
                         break;
 
                     case 6:
 
-                        if (yk<0){
+                        if (yk < 0) {
 
-                            h=vj*(vj*G-vi*(G*cosij-B*sinij));
+                            h = vj * (vj * G - vi * (G * cosij - B * sinij));
 
-                        }else {
+                        } else {
 
-                            h=vi*vj*B*sinij/yk;
+                            h = vi * vj * B * sinij / yk;
 
                         }
 
@@ -343,91 +353,93 @@ public class Estimator {
 
                     case 7:
 
-                        if (yk<0){
+                        if (yk < 0) {
 
-                            h=vj*(-vj*(B+yk)+vi*(G*sinij+B*cosij));
+                            h = vj * (-vj * (B + yk) + vi * (G * sinij + B * cosij));
 
-                        }else {
+                        } else {
 
-                            h=(vi*cosij/yk-vj)*B*vj;
+                            h = (vi * cosij / yk - vj) * B * vj;
 
                         }
+
+//                        h=-h;
 
                         break;
 
                 }
 
-            }else {
+            } else {
 
 //                use index
-                iint=busNumbers.getTOI().get(measurementTable.getLocation()[n])-1;
+                iint = busNumbers.getTOI().get(measurementTable.getLocation()[n]) - 1;
 
-                if (type<2){
+                if (type < 2) {
 
-                    h=state.getVe().get(iint);
+                    h = state.getVe().get(iint);
 
-                }else {
+                } else {
 
-                    List<Integer> rowidx=getYRow(iint);
+                    List<Integer> rowidx = getYRow(iint);
 
-                    boolean up=false;
+                    boolean up = false;
 
                     int idx;
 
                     for (int i = 0; i < rowidx.size(); i++) {
 
-                        idx=rowidx.get(i);
+                        idx = rowidx.get(i);
 
-                        if (idx==-1){
+                        if (idx == -1) {
 
-                            jint=iint;
+                            jint = iint;
 
 //                            here iint jint are indices
-                            G=Y.getGIJ(iint+1,iint+1);
+                            G = Y.getGIJ(iint + 1, iint + 1);
 
-                            B=Y.getBIJ(iint+1,iint+1);
+                            B = Y.getBIJ(iint + 1, iint + 1);
 
-                            up=true;
+                            up = true;
 
-                        }else {
+                        } else {
 
-                            if (up){
+                            if (up) {
 
                                 jint = Y.getJjyList().get(idx).getJ();
 
-                                G=Y.getJjyList().get(idx).getGb().getG();
+                                G = Y.getJjyList().get(idx).getGb().getG();
 
-                                B=Y.getJjyList().get(idx).getGb().getB();
+                                B = Y.getJjyList().get(idx).getGb().getB();
 
-                            }else {
+                            } else {
 
-                                jint=Y.getJylList().get(idx).getJ();
+                                jint = Y.getJylList().get(idx).getJ();
 
-                                G=Y.getJylList().get(idx).getGb().getG();
+                                G = Y.getJylList().get(idx).getGb().getG();
 
-                                B=Y.getJylList().get(idx).getGb().getB();
+                                B = Y.getJylList().get(idx).getGb().getB();
 
                             }
 
                         }
 
-                        vi=state.getVe().get(iint);
+                        vi = state.getVe().get(iint);
 
-                        vj=state.getVe().get(jint);
+                        vj = state.getVe().get(jint);
 
-                        thetaij=state.getAe().get(iint)-state.getAe().get(jint);
+                        thetaij = state.getAe().get(iint) - state.getAe().get(jint);
 
-                        sinij=Math.sin(thetaij);
+                        sinij = Math.sin(thetaij);
 
-                        cosij=Math.cos(thetaij);
+                        cosij = Math.cos(thetaij);
 
-                        if (type==3){
+                        if (type == 3) {
 
-                            h=h+vi*vj*(G*sinij-B*cosij);
+                            h = h + vi * vj * (G * sinij - B * cosij);
 
-                        }else {
+                        } else {
 
-                            h=h+vi*vj*(G*cosij+B*sinij);
+                            h = h + vi * vj * (G * cosij + B * sinij);
 
                         }
 
@@ -437,17 +449,18 @@ public class Estimator {
 
             }
 
-            state.getRes().set(n,measurementTable.getZ()[n]-h);
+            state.getRes().set(n, measurementTable.getZ()[n] - h);
 
         }
 
     }
 
-    private List<Integer> getYRow(int iint){
+    //    including reference bus
+    private List<Integer> getYRow(int iint) {
 
-        List<Integer> rowidx=new ArrayList<Integer>();
+        List<Integer> rowidx = new ArrayList<Integer>();
 
-        for (int i = Y.getIYL().get(iint); i < Y.getIYL().get(iint + 1) ; i++) {
+        for (int i = Y.getIYL().get(iint); i < Y.getIYL().get(iint + 1); i++) {
 
             rowidx.add(i);
 
@@ -456,7 +469,7 @@ public class Estimator {
 //        diagonal element
         rowidx.add(-1);
 
-        for (int i = Y.getIY().get(iint); i <Y.getIY().get(iint+1) ; i++) {
+        for (int i = Y.getIY().get(iint); i < Y.getIY().get(iint + 1); i++) {
 
             rowidx.add(i);
 
@@ -466,10 +479,10 @@ public class Estimator {
 
     }
 
-//    simple bad data recognition program
-    private void zeroResidualRecognition(){
+    //    simple bad data recognition program
+    private void zeroResidualRecognition() {
 
-        if (it<2){
+        if (it < 2) {
 
             return;
 
@@ -483,21 +496,21 @@ public class Estimator {
 
         for (int i = 0; i < state.getRes().size(); i++) {
 
-            r=state.getRes().get(i);
+            r = state.getRes().get(i);
 
-            jxb=jxb+r*r;
+            jxb = jxb + r * r;
 
-            if (Math.abs(r)< Constants.ESTIMATOR.ERR_REC){
+            if (Math.abs(r) < Constants.ESTIMATOR.ERR_REC) {
 
-                jx=jx+r*r;
+                jx = jx + r * r;
 
-            }else {
+            } else {
 
                 bdm.add(i);
 
                 bd.add(r);
 
-                state.getRes().set(i,0.0);
+                state.getRes().set(i, 0.0);
 
             }
 
@@ -505,62 +518,69 @@ public class Estimator {
 
     }
 
-    private void computeX(){
+    private void computeX() {
 
         double xi;
 
-        double v0=measurementTable.getV0();
+        double v0 = measurementTable.getV0();
 
         x.clear();
 
-        for (int m = 0; m <HTRI.getRowStartAddress().size()-1; m++) {
+        for (int m = 0; m < HTRI.getRowStartAddress().size() - 1; m++) {
 
-            xi=0;
+            xi = 0;
 
-            for (int n = HTRI.getRowStartAddress().get(m); n < HTRI.getRowStartAddress().get(m+1); n++) {
+            for (int n = HTRI.getRowStartAddress().get(m); n < HTRI.getRowStartAddress().get(m + 1); n++) {
 
-                xi=xi+HTRI.getColumnAndValues().get(n).getValue()*
+                xi = xi + HTRI.getColumnAndValues().get(n).getValue() *
                         state.getRes().get(HTRI.getColumnAndValues().get(n).getColumn());
 
 
             }
 
-            x.add(xi/v0/v0);
+            if (kpq == 0) {
 
+                x.add(xi / v0 / v0);
+
+            } else {
+
+                x.add(xi / v0);
+
+            }
         }
 
     }
 
-    private void solveLinearFunction(List<ColumnAndValue> uju){
+    private void solveLinearFunction(List<ColumnAndValue> uju) {
 
-        int ku=0,j,i;
+        int ku = 0, j, i;
 
         double d;
 
 //        ignore reference bus
-        for (i = 0; i < x.size()-1; i++) {
+        for (i = 0; i < x.size() - 1; i++) {
 
-            d=uju.get(ku).getValue();
+            d = uju.get(ku).getValue();
 
-            while (++ku<uju.size()&&uju.get(ku).getColumn()!=0){
+            while (++ku < uju.size() && uju.get(ku).getColumn() != 0) {
 
-                j=uju.get(ku).getColumn();
+                j = uju.get(ku).getColumn();
 
-                x.set(j,x.get(j)-uju.get(ku).getValue()*x.get(i));
+                x.set(j, x.get(j) - uju.get(ku).getValue() * x.get(i));
 
             }
 
-            x.set(i,x.get(i)/d);
+            x.set(i, x.get(i) / d);
 
         }
 
-        while (--i>=0){
+        while (--i >= 0) {
 
-            while (--ku>=0&&uju.get(ku).getColumn()!=0){
+            while (--ku >= 0 && uju.get(ku).getColumn() != 0) {
 
-                j=uju.get(ku).getColumn();
+                j = uju.get(ku).getColumn();
 
-                x.set(i,x.get(i)-x.get(j)*uju.get(ku).getValue());
+                x.set(i, x.get(i) - x.get(j) * uju.get(ku).getValue());
 
             }
 
