@@ -325,15 +325,13 @@ public class Estimator {
 
                         if (yk < 0) {
 
-                            h = -vi * (vi * (B + yk) - vj * (B * cosij - G * sinij));
+                            h = -vi * (vi * (B - yk) - vj * (B * cosij - G * sinij));
 
                         } else {
 
                             h = (-vi / yk + vj * cosij) * B * vi / yk;
 
                         }
-
-//                        h=-h;
 
                         break;
 
@@ -355,15 +353,13 @@ public class Estimator {
 
                         if (yk < 0) {
 
-                            h = vj * (-vj * (B + yk) + vi * (G * sinij + B * cosij));
+                            h = vj * (-vj * (B - yk) + vi * (G * sinij + B * cosij));
 
                         } else {
 
                             h = (vi * cosij / yk - vj) * B * vj;
 
                         }
-
-//                        h=-h;
 
                         break;
 
@@ -385,6 +381,8 @@ public class Estimator {
                     boolean up = false;
 
                     int idx;
+
+                    vi = state.getVe().get(iint);
 
                     for (int i = 0; i < rowidx.size(); i++) {
 
@@ -423,8 +421,6 @@ public class Estimator {
 
                         }
 
-                        vi = state.getVe().get(iint);
-
                         vj = state.getVe().get(jint);
 
                         thetaij = state.getAe().get(iint) - state.getAe().get(jint);
@@ -462,6 +458,12 @@ public class Estimator {
 
         for (int i = Y.getIYL().get(iint); i < Y.getIYL().get(iint + 1); i++) {
 
+//            if (Y.getJylList().get(i).getJ()==Y.getOrder()-1){
+//
+//                continue;
+//
+//            }
+
             rowidx.add(i);
 
         }
@@ -470,6 +472,12 @@ public class Estimator {
         rowidx.add(-1);
 
         for (int i = Y.getIY().get(iint); i < Y.getIY().get(iint + 1); i++) {
+
+//            if (Y.getJylList().get(i).getJ()==Y.getOrder()-1){
+//
+//                continue;
+//
+//            }
 
             rowidx.add(i);
 
