@@ -231,6 +231,8 @@ public class BranchData {
 
         setUnknown(unknowntmp);
 
+        setN(ntmp);
+
     }
 
     private List<String> getBranchDataStrings(String data) {

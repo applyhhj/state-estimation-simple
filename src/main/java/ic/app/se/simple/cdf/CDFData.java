@@ -5,8 +5,6 @@ package ic.app.se.simple.cdf;
  */
 public class CDFData {
 
-    private String filepath;
-
     private BranchData branchData;
 
     private BusData busData;
@@ -19,6 +17,13 @@ public class CDFData {
 
     }
 
+    public BranchData getBranchData() {
+        return branchData;
+    }
+
+    public BusData getBusData() {
+        return busData;
+    }
 }
 
 
