@@ -11,8 +11,8 @@ import static ic.app.se.simple.common.Utils.loadSectionData;
 
 /**
  * Created by Administrator on 2015/10/28.
- *
- * cdf data files of different systems do not obey the cdf data format, this program is used
+ * <p>
+ * cdf data files of different systems do not obey the cdf data format, this program is ONLY used
  * to process 300 bus cdf file.
  */
 public class BranchData {
@@ -60,6 +60,8 @@ public class BranchData {
     private double[] limitMin;
 
     private double[] limitMax;
+
+    private int[] unknown;
 
     private int paraNum;
 
@@ -125,6 +127,8 @@ public class BranchData {
 
         double[] limitMaxtmp = new double[ntmp];
 
+        int[] unknowntmp = new int[ntmp];
+
         for (int k = 0; k < branchDataContent.size(); k++) {
 
             cols = getBranchDataStrings(branchDataContent.get(k));
@@ -137,7 +141,95 @@ public class BranchData {
 
             }
 
+            itmp[k] = Integer.parseInt(cols.get(0));
+
+            jtmp[k] = Integer.parseInt(cols.get(1));
+
+            areatmp[k] = Integer.parseInt(cols.get(2));
+
+            zonetmp[k] = Integer.parseInt(cols.get(3));
+
+            circuittmp[k] = Integer.parseInt(cols.get(4));
+
+            typetmp[k] = Integer.parseInt(cols.get(5));
+
+            rtmp[k] = Double.parseDouble(cols.get(6));
+
+            xtmp[k] = Double.parseDouble(cols.get(7));
+
+            btmp[k] = Double.parseDouble(cols.get(8));
+
+            sr1tmp[k] = Integer.parseInt(cols.get(9));
+
+            sr2tmp[k] = Integer.parseInt(cols.get(10));
+
+            sr3tmp[k] = Integer.parseInt(cols.get(11));
+
+            cbustmp[k] = Integer.parseInt(cols.get(12));
+
+            sidetmp[k] = Integer.parseInt(cols.get(13));
+
+            tratiotmp[k] = Double.parseDouble(cols.get(14));
+
+            tangletmp[k] = Double.parseDouble(cols.get(15));
+
+            tpmintmp[k] = Double.parseDouble(cols.get(16));
+
+            tpmaxtmp[k] = Double.parseDouble(cols.get(17));
+
+            steptmp[k] = Double.parseDouble(cols.get(18));
+
+            limitMintmp[k] = Double.parseDouble(cols.get(19));
+
+            limitMaxtmp[k] = Double.parseDouble(cols.get(20));
+
+            unknowntmp[k] = Integer.parseInt(cols.get(21));
+
         }
+
+        setI(itmp);
+
+        setJ(jtmp);
+
+        setArea(areatmp);
+
+        setZone(zonetmp);
+
+        setCircuit(circuittmp);
+
+        setType(typetmp);
+
+        setR(rtmp);
+
+        setX(xtmp);
+
+        setB(btmp);
+
+        setSr1(sr1tmp);
+
+        setSr2(sr2tmp);
+
+        setSr3(sr3tmp);
+
+        setCbus(cbustmp);
+
+        setSide(sidetmp);
+
+        setTratio(tratiotmp);
+
+        setTangle(tangletmp);
+
+        setTpmin(tpmintmp);
+
+        setTpmax(tpmaxtmp);
+
+        setStep(steptmp);
+
+        setLimitMin(limitMintmp);
+
+        setLimitMax(limitMaxtmp);
+
+        setUnknown(unknowntmp);
 
     }
 
@@ -189,8 +281,27 @@ public class BranchData {
 
         ret.add(data.substring(126, data.length()).trim());
 
+        for (int k = 0; k < ret.size(); k++) {
+
+            if (ret.get(k).equals("")) {
+
+//                in case there is empty data we fill it with zero
+                ret.set(k, "0");
+
+            }
+
+        }
+
         return ret;
 
+    }
+
+    public int[] getUnknown() {
+        return unknown;
+    }
+
+    public void setUnknown(int[] unknown) {
+        this.unknown = unknown;
     }
 
     public int getParaNum() {
