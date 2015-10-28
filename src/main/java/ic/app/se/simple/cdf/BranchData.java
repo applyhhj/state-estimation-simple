@@ -6,6 +6,4 @@ package ic.app.se.simple.cdf;
 public class BranchData {
 
 
-
-
 }
