@@ -83,7 +83,7 @@ public class Utils {
 
         boolean found = false;
 
-        int endCheck;
+        boolean endCheck;
 
         for (int k = 0; k < dataContent.size(); k++) {
 
@@ -103,21 +103,13 @@ public class Utils {
 
                 endCheck = checkSectionEnd(entry, sectionStartKey, keyMap);
 
-                if (endCheck > 0) {
+                if (endCheck) {
 
                     break;
-
-                } else if (endCheck == 0) {
-
-                    sectionData.add(entry);
 
                 } else {
 
-                    logger.error("Section {} has incorrect end!", sectionStartKey);
-
-                    sectionData.clear();
-
-                    break;
+                    sectionData.add(entry);
 
                 }
 
@@ -129,42 +121,9 @@ public class Utils {
 
     }
 
-    private String checkSectionStartKey(String entry, HashMap keyMap) {
+    private static boolean checkSectionEnd(String entry, String sectionStartKey, HashMap<String, String> keyMap) {
 
-        for (Object key : keyMap.keySet()) {
-
-            String keystr = key.toString();
-
-            if (entry.contains(keystr)) {
-
-                return keystr;
-
-            }
-
-        }
-
-        return null;
-    }
-
-    private static int checkSectionEnd(String entry, String sectionStartKey, HashMap keyMap) {
-
-        if (keyMap.values().contains(entry)) {
-
-            if (keyMap.get(sectionStartKey).equals(entry)) {
-
-                return 1;
-
-            } else {
-
-                return -1;
-
-            }
-
-        } else {
-
-            return 0;
-
-        }
+        return entry.startsWith(keyMap.get(sectionStartKey));
 
     }
 
@@ -311,22 +270,39 @@ public class Utils {
 
     }
 
-    public static String getPQType(int type){
+    public static String getPQType(int type) {
 
         String pq;
 
-        if (type==0){
+        if (type == 0) {
 
-            pq="P";
+            pq = "P";
 
-        }else {
+        } else {
 
-            pq="Q";
+            pq = "Q";
 
         }
 
         return pq;
 
+    }
+
+    private String checkSectionStartKey(String entry, HashMap keyMap) {
+
+        for (Object key : keyMap.keySet()) {
+
+            String keystr = key.toString();
+
+            if (entry.contains(keystr)) {
+
+                return keystr;
+
+            }
+
+        }
+
+        return null;
     }
 
 }

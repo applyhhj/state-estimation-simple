@@ -19,15 +19,19 @@ public class CDFDataConverter {
 
     }
 
-    private void loadData(){
+    public void loadData() {
 
         List<String> busDataContent=loadSectionData(filepath, Constants.CDF.BUS_SECTION);
 
         List<String> branchDataContent=loadSectionData(filepath, Constants.CDF.BRANCH_SECTION);
 
+        String[] cols;
+
+        int idx;
+
         for (int i = 0; i < busDataContent.size(); i++) {
 
-
+            cols = busDataContent.get(i).split(" +");
 
         }
 
