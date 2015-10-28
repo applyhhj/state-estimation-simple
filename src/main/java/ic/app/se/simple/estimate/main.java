@@ -9,7 +9,21 @@ public class main {
 
         PowerGrid powerGrid = new PowerGrid();
 
-        powerGrid.initData("/home/hjh/doc/powersystem/4bus/ieee4cdftest.txt");
+        String fname;
+
+        if (isLinux()){
+
+            fname="/home/hjh/doc/powersystem/4bus/ieee4cdftest.txt";
+
+        }else {
+
+            fname="";
+
+        }
+
+        System.exit(0);
+
+        powerGrid.initData(fname);
 
         int i = 0;
 
@@ -22,6 +36,12 @@ public class main {
             powerGrid.estimate();
 
         }
+
+    }
+
+    private static boolean isLinux() {
+
+        return !(System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0);
 
     }
 

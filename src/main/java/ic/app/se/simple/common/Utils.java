@@ -59,14 +59,21 @@ public class Utils {
 
         HashMap<String, String> ret = new HashMap<String, String>();
 
-        ret.put(Constants.CDF.BRANCH_SECTION_START_KEY, Constants.CDF.BRANCH_SECTION_END_KEY);
+        ret.put(Constants.CDF.BUS_SECTION,Constants.CDF.BUS_SECTION_END);
 
-        ret.put(Constants.CDF.MEASUREMENT_SECTION_START_KEY, Constants.CDF.MEASUREMENT_SECTION_END_KEY);
+        ret.put(Constants.CDF.BRANCH_SECTION, Constants.CDF.BRANCH_SECTION_END);
+
+        ret.put(Constants.CDF.MEASUREMENT_SECTION, Constants.CDF.MEASUREMENT_SECTION_END);
 
         return ret;
 
     }
 
+    public static List<String> loadSectionData(String filepath, String sectionStartKey) {
+
+        return loadSectionData(readStringFromFile(filepath),sectionStartKey);
+
+    }
 
     public static List<String> loadSectionData(List<String> dataContent, String sectionStartKey) {
 

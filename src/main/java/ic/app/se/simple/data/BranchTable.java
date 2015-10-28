@@ -80,7 +80,7 @@ public class BranchTable {
 
     public void loadData(List<String> data) {
 
-        List<String> branchData = loadSectionData(data, Constants.CDF.BRANCH_SECTION_START_KEY);
+        List<String> branchData = loadSectionData(data, Constants.CDF.BRANCH_SECTION);
 
         int[] itmp = new int[branchData.size()];
 

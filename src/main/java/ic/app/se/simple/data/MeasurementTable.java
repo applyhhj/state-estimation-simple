@@ -44,7 +44,7 @@ public class MeasurementTable {
 
     public void loadData(List<String> data){
 
-        List<String> mData=loadSectionData(data, Constants.CDF.MEASUREMENT_SECTION_START_KEY);
+        List<String> mData=loadSectionData(data, Constants.CDF.MEASUREMENT_SECTION);
 
         int[] typetmp=new int[mData.size()];
 
