@@ -28,15 +28,31 @@ public class Test {
 
         int type;
 
+        for (int i = 0; i < cdfData.getBusData().getN(); i++) {
+
+            type = cdfData.getBusData().getType()[i];
+
+            if (type == 3) {
+
+//                types.add(type);
+
+                System.out.print(cdfData.getBusData().getNumber()[i] + "\n");
+
+            }
+
+        }
+
         for (int i = 0; i < cdfData.getBranchData().getN(); i++) {
 
-            type = cdfData.getBranchData().getType()[i];
+            int i1 = cdfData.getBranchData().getI()[i];
 
-            if (!types.contains(type)) {
+            int j1 = cdfData.getBranchData().getJ()[i];
 
-                types.add(type);
+            if ((cdfData.getBusData().getVBase()[cdfData.getBusData().getTOA().get(i1)] !=
+                    cdfData.getBusData().getVBase()[cdfData.getBusData().getTOA().get(j1)])
+                    && cdfData.getBranchData().getType()[i] == 0) {
 
-                System.out.print(type + "\n");
+                System.out.print(i1 + "," + j1 + " not equal\n");
 
             }
 

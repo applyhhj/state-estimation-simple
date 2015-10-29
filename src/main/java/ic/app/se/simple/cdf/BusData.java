@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ic.app.se.simple.common.Utils.loadSectionData;
 
@@ -15,6 +17,12 @@ import static ic.app.se.simple.common.Utils.loadSectionData;
 public class BusData {
 
     private static Logger logger = LoggerFactory.getLogger(BusData.class);
+
+    private Map<Integer, Integer> TIO;
+
+    private Map<Integer, Integer> TOI;
+
+    private Map<Integer, Integer> TOA;
 
     private int[] number;
 
@@ -58,6 +66,12 @@ public class BusData {
     private int n;
 
     public BusData(String fpath) {
+
+        TIO = new HashMap<Integer, Integer>();
+
+        TOI = new HashMap<Integer, Integer>();
+
+        TOA = new HashMap<Integer, Integer>();
 
         paraNum = 18;
 
@@ -243,6 +257,159 @@ public class BusData {
 
         return ret;
 
+    }
+
+    public void reorderBusNumbers(BranchData branchData) {
+
+        int[] i = branchData.getI();
+
+        int[] j = branchData.getJ();
+
+        int[] type = getType();
+
+        int[] buses = getNumber();
+
+        Map<Integer, Integer> busBranchNumberMap = new HashMap<Integer, Integer>();
+
+        int ni, nj, n23;
+
+//        compute lines from each bus
+        for (int k = 0; k < i.length; k++) {
+
+            ni = i[k];
+
+            nj = j[k];
+
+            if (ni == nj) {
+
+                continue;
+
+            }
+
+            if (!busBranchNumberMap.containsKey(ni)) {
+
+                busBranchNumberMap.put(ni, 1);
+
+            } else {
+
+                busBranchNumberMap.put(ni, busBranchNumberMap.get(ni) + 1);
+
+            }
+
+
+            if (!busBranchNumberMap.containsKey(nj)) {
+
+                busBranchNumberMap.put(nj, 1);
+
+            } else {
+
+                busBranchNumberMap.put(nj, busBranchNumberMap.get(nj) + 1);
+
+            }
+
+        }
+
+        int idx = busBranchNumberMap.size();
+
+        Map<Integer, Integer> pvbuses = new HashMap<Integer, Integer>();
+
+        for (int k = 0; k < type.length; k++) {
+
+            TOA.put(buses[k], k);
+
+//            swing bus, reference bus
+            if (type[k] == 3) {
+
+                n23 = buses[k];
+
+                if (busBranchNumberMap.containsKey(n23)) {
+
+                    TIO.put(idx, n23);
+
+                    busBranchNumberMap.remove(n23);
+
+                    idx--;
+
+                } else {
+
+                    logger.error("Reference bus {} does not exist in branch data!", n23);
+
+                    return;
+
+                }
+
+            } else if (type[k] == 2) {
+
+//                PV bus
+                n23 = buses[k];
+
+                if (busBranchNumberMap.containsKey(n23)) {
+
+                    pvbuses.put(n23, busBranchNumberMap.get(n23));
+
+                    busBranchNumberMap.remove(n23);
+
+                }
+
+            }
+
+        }
+
+        idx = addBuses(idx, pvbuses);
+
+        addBuses(idx, busBranchNumberMap);
+
+        for (Map.Entry<Integer, Integer> e : TIO.entrySet()) {
+
+            TOI.put(e.getValue(), e.getKey());
+
+        }
+
+    }
+
+    private int addBuses(int currentIdx, Map<Integer, Integer> busBranchNoMap) {
+
+//        insert from the end
+        while (busBranchNoMap.size() > 0) {
+
+            Integer maxKey = null;
+
+            for (Map.Entry<Integer, Integer> e : busBranchNoMap.entrySet()) {
+
+                if (maxKey == null) {
+
+                    maxKey = e.getKey();
+
+                }
+
+                if (busBranchNoMap.get(maxKey) < e.getValue()) {
+
+                    maxKey = e.getKey();
+
+                }
+
+            }
+
+            TIO.put(currentIdx--, maxKey);
+
+            busBranchNoMap.remove(maxKey);
+
+        }
+
+        return currentIdx;
+
+    }
+
+    public Map<Integer, Integer> getTIO() {
+        return TIO;
+    }
+
+    public Map<Integer, Integer> getTOA() {
+        return TOA;
+    }
+
+    public Map<Integer, Integer> getTOI() {
+        return TOI;
     }
 
     public int getN() {

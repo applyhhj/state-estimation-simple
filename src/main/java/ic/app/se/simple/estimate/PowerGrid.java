@@ -55,8 +55,6 @@ public class PowerGrid {
 
     public void estimate() {
 
-//        state.reset();
-
         estimator.estimate();
 
     }
@@ -156,11 +154,11 @@ public class PowerGrid {
         }
     }
 
-    public void setKPQ(int KPQ) {
-        this.KPQ = KPQ;
-    }
-
     public int getKPQ() {
         return KPQ;
+    }
+
+    public void setKPQ(int KPQ) {
+        this.KPQ = KPQ;
     }
 }
