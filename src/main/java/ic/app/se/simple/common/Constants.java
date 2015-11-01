@@ -28,6 +28,15 @@ public abstract class Constants {
         public static final String MPC_BRANCH = "mpc.branch";
         public static final String MPC_BRANCH_END = "mpc.branch.end";
 
+        public abstract class BusTypes {
+
+            public static final int PQ = 1;
+            public static final int PV = 2;
+            public static final int REF = 3;
+            public static final int ISO = 4;
+
+        }
+
     }
 
     public abstract class ESTIMATOR{

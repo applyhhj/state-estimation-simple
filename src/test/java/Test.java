@@ -15,7 +15,7 @@ public class Test {
 
         } else {
 
-            fpath = "F:\\projects\\data\\matpower-data-process\\data\\case5.txt";
+            fpath = "F:\\projects\\data\\matpower-data-process\\data\\case14.txt";
 
         }
 

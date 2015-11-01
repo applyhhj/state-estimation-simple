@@ -11,6 +11,10 @@ import static ic.app.se.simple.common.Utils.readStringFromFile;
 
 /**
  * Created by Administrator on 2015/10/28.
+ *
+ * Currently we consider all generator and buses are in service and there is no
+ * isolated buses and all buses are in a connected network.
+ *
  */
 public class MPData {
 
@@ -35,6 +39,8 @@ public class MPData {
         genData = new GeneratorData();
 
         importData(filepath);
+
+        busData.reorderBusNumbers(branchData);
 
     }
 

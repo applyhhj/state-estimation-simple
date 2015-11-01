@@ -1,5 +1,6 @@
 package ic.app.se.mp.cdf;
 
+import ic.app.se.simple.common.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,6 +169,7 @@ public class BusData {
 
     }
 
+    //    number starts from 1
     public void reorderBusNumbers(BranchData branchData) {
 
         int[] i = branchData.getI();
@@ -180,7 +182,7 @@ public class BusData {
 
         Map<Integer, Integer> busBranchNumberMap = new HashMap<Integer, Integer>();
 
-        int ni, nj, n23;
+        int ni, nj, ntmp;
 
 //        compute lines from each bus
         for (int k = 0; k < i.length; k++) {
@@ -227,36 +229,36 @@ public class BusData {
             TOA.put(buses[k], k);
 
 //            swing bus, reference bus
-            if (type[k] == 3) {
+            if (type[k] == Constants.MPC.BusTypes.REF) {
 
-                n23 = buses[k];
+                ntmp = buses[k];
 
-                if (busBranchNumberMap.containsKey(n23)) {
+                if (busBranchNumberMap.containsKey(ntmp)) {
 
-                    TIO.put(idx, n23);
+                    TIO.put(idx, ntmp);
 
-                    busBranchNumberMap.remove(n23);
+                    busBranchNumberMap.remove(ntmp);
 
                     idx--;
 
                 } else {
 
-                    logger.error("Reference bus {} does not exist in branch data!", n23);
+                    logger.error("Reference bus {} does not exist in branch data!", ntmp);
 
                     return;
 
                 }
 
-            } else if (type[k] == 2) {
+            } else if (type[k] == Constants.MPC.BusTypes.PV) {
 
 //                PV bus
-                n23 = buses[k];
+                ntmp = buses[k];
 
-                if (busBranchNumberMap.containsKey(n23)) {
+                if (busBranchNumberMap.containsKey(ntmp)) {
 
-                    pvbuses.put(n23, busBranchNumberMap.get(n23));
+                    pvbuses.put(ntmp, busBranchNumberMap.get(ntmp));
 
-                    busBranchNumberMap.remove(n23);
+                    busBranchNumberMap.remove(ntmp);
 
                 }
 
