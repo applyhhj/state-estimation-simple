@@ -69,6 +69,24 @@ public class Utils {
 
     }
 
+    public static HashMap<String, String> getMPDataSectionStartEndMap() {
+
+        HashMap<String, String> ret = new HashMap<String, String>();
+
+        ret.put(Constants.MPC.MPC_VERSION, Constants.MPC.MPC_VERSION_END);
+
+        ret.put(Constants.MPC.MPC_BASEMVA, Constants.MPC.MPC_BASEMVA_END);
+
+        ret.put(Constants.MPC.MPC_BRANCH, Constants.MPC.MPC_BRANCH_END);
+
+        ret.put(Constants.MPC.MPC_BUS, Constants.MPC.MPC_BUS_END);
+
+        ret.put(Constants.MPC.MPC_GEN, Constants.MPC.MPC_GEN_END);
+
+        return ret;
+
+    }
+
     public static List<String> loadSectionData(String filepath, String sectionStartKey) {
 
         return loadSectionData(readStringFromFile(filepath),sectionStartKey);

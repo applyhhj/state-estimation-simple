@@ -1,7 +1,4 @@
-import ic.app.se.simple.cdf.CDFData;
-
-import java.util.ArrayList;
-import java.util.List;
+import ic.app.se.mp.cdf.MPData;
 
 /**
  * Created by hjh on 15-10-9.
@@ -18,45 +15,13 @@ public class Test {
 
         } else {
 
-            fpath = "F:\\projects\\data\\powersystem\\300bus\\ieee300cdf.txt";
+            fpath = "F:\\projects\\data\\matpower-data-process\\data\\case5.txt";
 
         }
 
-        CDFData cdfData = new CDFData(fpath);
+        MPData mpData = new MPData(fpath);
 
-        List<Integer> types = new ArrayList<Integer>();
-
-        int type;
-
-        for (int i = 0; i < cdfData.getBusData().getN(); i++) {
-
-            type = cdfData.getBusData().getType()[i];
-
-            if (type == 3) {
-
-//                types.add(type);
-
-                System.out.print(cdfData.getBusData().getNumber()[i] + "\n");
-
-            }
-
-        }
-
-        for (int i = 0; i < cdfData.getBranchData().getN(); i++) {
-
-            int i1 = cdfData.getBranchData().getI()[i];
-
-            int j1 = cdfData.getBranchData().getJ()[i];
-
-            if ((cdfData.getBusData().getVBase()[cdfData.getBusData().getTOA().get(i1)] !=
-                    cdfData.getBusData().getVBase()[cdfData.getBusData().getTOA().get(j1)])
-                    && cdfData.getBranchData().getType()[i] == 0) {
-
-                System.out.print(i1 + "," + j1 + " not equal\n");
-
-            }
-
-        }
+        System.out.print("Done!\n");
 
     }
 
