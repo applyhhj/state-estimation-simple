@@ -1,4 +1,4 @@
-package ic.app.se.mp.cdf;
+package ic.app.se.mp.data;
 
 import ic.app.se.simple.common.Constants;
 import org.slf4j.Logger;
@@ -125,7 +125,8 @@ public class BusData {
 
             voltagetmp[i] = Double.parseDouble(cols[7]);
 
-            angletmp[i] = Double.parseDouble(cols[8]);
+//            convert to radius
+            angletmp[i] = Double.parseDouble(cols[8]) / 180 * Math.PI;
 
             VBasetmp[i] = Double.parseDouble(cols[9]);
 

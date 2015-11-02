@@ -1,4 +1,4 @@
-package ic.app.se.mp.cdf;
+package ic.app.se.mp.data;
 
 import ic.app.se.simple.common.Constants;
 import org.slf4j.Logger;
@@ -13,7 +13,8 @@ import static ic.app.se.simple.common.Utils.readStringFromFile;
  * Created by Administrator on 2015/10/28.
  *
  * Currently we consider all generator and buses are in service and there is no
- * isolated buses and all buses are in a connected network.
+ * isolated buses and all buses are in a connected network. Generator and branches
+ * are in natural order while buses are reordered for optimization.
  *
  */
 public class MPData {

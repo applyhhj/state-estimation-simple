@@ -1,4 +1,6 @@
-import ic.app.se.mp.cdf.MPData;
+import ic.app.se.mp.data.MPData;
+import ic.app.se.mp.data.PowerFlow;
+import ic.app.se.mp.data.YMatrix;
 
 /**
  * Created by hjh on 15-10-9.
@@ -20,6 +22,10 @@ public class Test {
         }
 
         MPData mpData = new MPData(fpath);
+
+        YMatrix yMatrix = new YMatrix(mpData);
+
+        PowerFlow powerFlow = new PowerFlow(mpData, yMatrix);
 
         System.out.print("Done!\n");
 

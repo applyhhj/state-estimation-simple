@@ -1,4 +1,4 @@
-package ic.app.se.mp.cdf;
+package ic.app.se.mp.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +130,8 @@ public class BranchData {
 
             ratiotmp[j] = Double.parseDouble(cols[8]);
 
-            angletmp[j] = Double.parseDouble(cols[9]);
+//            convert to radius
+            angletmp[j] = Double.parseDouble(cols[9]) / 180 * Math.PI;
 
             statustmp[j] = Integer.parseInt(cols[10]);
 

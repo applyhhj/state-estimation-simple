@@ -306,6 +306,12 @@ public class Utils {
 
     }
 
+    public static boolean isLinux() {
+
+        return System.getProperty("os.name").toLowerCase().indexOf("linux") >= 0;
+
+    }
+
     private String checkSectionStartKey(String entry, HashMap keyMap) {
 
         for (Object key : keyMap.keySet()) {
