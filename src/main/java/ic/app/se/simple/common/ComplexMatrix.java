@@ -11,11 +11,19 @@ public class ComplexMatrix {
 
     private Matrix I;
 
+    private int rows;
+
+    private int cols;
+
     public ComplexMatrix(Matrix R, Matrix I) {
 
         this.R = R;
 
         this.I = I;
+
+        rows = R.rows();
+
+        cols = R.columns();
 
     }
 
@@ -33,6 +41,20 @@ public class ComplexMatrix {
 
     public void setR(Matrix r) {
         R = r;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public int getCols() {
+        return cols;
+    }
+
+    public ComplexMatrix conj() {
+
+        return new ComplexMatrix(R.multiply(1), I.multiply(-1));
+
     }
 
     public ComplexMatrix multiply(ComplexMatrix matrix) {
@@ -56,6 +78,20 @@ public class ComplexMatrix {
     public ComplexMatrix minus(ComplexMatrix matrix) {
 
         return new ComplexMatrix(R.add(matrix.getR().multiply(-1)), I.add(matrix.getI().multiply(-1)));
+
+    }
+
+    public void print(String title) {
+
+        System.out.print(title + "\n");
+
+        print();
+
+    }
+
+    public void print() {
+
+        System.out.print("Real part:\n" + R.toString() + "\n" + "Imaginary part:\n" + I.toString());
 
     }
 

@@ -17,11 +17,15 @@ public class PowerSystem {
 
     private PowerFlow powerFlow;
 
+    private Estimator estimator;
+
     public PowerSystem(String mpCaseDataPath) {
 
         this.mpCaseDataPath = mpCaseDataPath;
 
         initData();
+
+        this.estimator = new Estimator(this);
 
     }
 

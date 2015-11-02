@@ -59,6 +59,8 @@ public class YMatrix {
 
         computeYMatrix();
 
+//        print();
+
     }
 
     private void computeYMatrix() {
@@ -136,8 +138,6 @@ public class YMatrix {
         YB = cf.transpose().multiply(YfB).add(ct.transpose().multiply(YtB)).add(YShB);
 
         Ybus = new ComplexMatrix(YG, YB);
-
-        print();
 
     }
 

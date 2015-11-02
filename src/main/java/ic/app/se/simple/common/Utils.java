@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hjh on 15-10-9.
@@ -309,6 +310,24 @@ public class Utils {
     public static boolean isLinux() {
 
         return System.getProperty("os.name").toLowerCase().indexOf("linux") >= 0;
+
+    }
+
+    public static void printInExternalNumberSequence(ComplexMatrix matrix, Map<Integer, Integer> TOI) {
+
+        System.out.print("Real\n");
+        for (int i = 0; i < matrix.getRows(); i++) {
+
+            System.out.printf("%8.4f\n", matrix.getR().get(TOI.get(i + 1) - 1, 0));
+
+        }
+
+        System.out.print("Imag\n");
+        for (int i = 0; i < matrix.getRows(); i++) {
+
+            System.out.printf("%8.4f\n", matrix.getI().get(TOI.get(i + 1) - 1, 0));
+
+        }
 
     }
 

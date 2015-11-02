@@ -1,9 +1,6 @@
 import org.la4j.Matrix;
 import org.la4j.matrix.sparse.CRSMatrix;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by hjh on 15-10-11.
  */
@@ -15,47 +12,15 @@ public class Learn {
 
         matrix.set(0, 1, 1.0);
 
-        byte[] mb = matrix.toBinary();
+        matrix.set(3, 6, 1.0);
 
-        System.out.print(mb.length + "\n");
+        Matrix newMatrix = matrix.multiply(-1);
 
-        byte[] dmb = matrix.toDenseMatrix().toBinary();
+        matrix.set(0, 1, 1.0);
 
-        System.out.print(dmb.length + "\n");
+        System.out.print(newMatrix.toString() + "\n");
 
-        System.out.print(matrix.toString());
-
-        System.exit(0);
-
-        List<Double> testlist=new ArrayList<Double>(11);
-
-        for (int i = 0; i < 5; i++) {
-
-            switch (i){
-
-                case 1:
-
-                case 2:
-
-                case 3:{
-
-                    System.out.print("multi\n");
-
-                    break;
-
-                }
-
-                case 4:{
-
-                    System.out.print("single\n");
-
-                    break;
-
-                }
-
-            }
-
-        }
+        System.out.print(matrix.toString() + "\n");
 
 
     }

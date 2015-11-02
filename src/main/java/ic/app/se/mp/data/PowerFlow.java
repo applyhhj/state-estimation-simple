@@ -43,7 +43,7 @@ public class PowerFlow {
 
         computeSbus();
 
-        print();
+//        print();
 
     }
 
