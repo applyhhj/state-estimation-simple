@@ -43,6 +43,10 @@ public class YMatrix {
 
     private ComplexMatrix Ybus;
 
+    private ComplexMatrix Yf;
+
+    private ComplexMatrix Yt;
+
     private MPData mpData;
 
     public YMatrix(MPData mpData) {
@@ -138,6 +142,10 @@ public class YMatrix {
         YB = cf.transpose().multiply(YfB).add(ct.transpose().multiply(YtB)).add(YShB);
 
         Ybus = new ComplexMatrix(YG, YB);
+
+        Yf = new ComplexMatrix(YfG, YfB);
+
+        Yt = new ComplexMatrix(YtG, YtB);
 
     }
 
@@ -266,5 +274,13 @@ public class YMatrix {
 
     public ComplexMatrix getYbus() {
         return Ybus;
+    }
+
+    public ComplexMatrix getYf() {
+        return Yf;
+    }
+
+    public ComplexMatrix getYt() {
+        return Yt;
     }
 }

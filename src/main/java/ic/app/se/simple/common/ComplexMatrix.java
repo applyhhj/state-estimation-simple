@@ -1,11 +1,15 @@
 package ic.app.se.simple.common;
 
 import org.la4j.Matrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Administrator on 2015/11/2.
  */
 public class ComplexMatrix {
+
+    private static Logger logger = LoggerFactory.getLogger(ComplexMatrix.class);
 
     private Matrix R;
 
@@ -16,6 +20,14 @@ public class ComplexMatrix {
     private int cols;
 
     public ComplexMatrix(Matrix R, Matrix I) {
+
+        if (R.rows() != I.rows() || R.columns() != I.columns()) {
+
+            logger.error("R and I are in different shape!");
+
+            return;
+
+        }
 
         this.R = R;
 
@@ -66,6 +78,12 @@ public class ComplexMatrix {
         i = R.multiply(matrix.getI()).add(I.multiply(matrix.getR()));
 
         return new ComplexMatrix(r, i);
+
+    }
+
+    public ComplexMatrix multiplyJ() {
+
+        return new ComplexMatrix(I.multiply(-1), R.multiply(1));
 
     }
 

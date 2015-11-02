@@ -47,6 +47,7 @@ public class PowerFlow {
 
     }
 
+    //    internal bus numbering
     private void computeSbus() {
 
         SbusP = new CRSMatrix(mpData.getBusData().getN(), 1);
@@ -73,6 +74,7 @@ public class PowerFlow {
 
     }
 
+    //    internal bus numbering
     private void importV() {
 
         Vr = new CRSMatrix(mpData.getBusData().getN(), 1);
