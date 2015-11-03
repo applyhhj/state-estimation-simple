@@ -8,20 +8,21 @@ public class Learn {
 
     public static void main(String[] args) {
 
-        Matrix matrix = new CRSMatrix(10, 10);
+        Matrix matrix = new CRSMatrix(10, 5);
 
-        matrix.set(0, 1, 1.0);
+        Matrix subMatrix = new CRSMatrix(7, 2);
 
-        matrix.set(3, 6, 1.0);
+        for (int i = 0; i < subMatrix.rows(); i++) {
 
-        Matrix newMatrix = matrix.multiply(-1);
+            subMatrix.set(i, 0, i + 1);
 
-        matrix.set(0, 1, 1.0);
+        }
+
+        System.out.print(subMatrix.toString() + "\n");
+
+        Matrix newMatrix = matrix.insert(subMatrix, 2, 0, subMatrix.rows(), subMatrix.columns());
 
         System.out.print(newMatrix.toString() + "\n");
-
-        System.out.print(matrix.toString() + "\n");
-
 
     }
 }

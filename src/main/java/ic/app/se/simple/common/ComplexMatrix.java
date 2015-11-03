@@ -100,33 +100,37 @@ public class ComplexMatrix {
 
     }
 
-    public ComplexMatrix dotMultiply(ComplexMatrix matrix) {
+    public ComplexMatrix hadamardMultiply(ComplexMatrix matrix) {
 
-        if (cols != 1 || matrix.getCols() != 1) {
+        if (cols != matrix.getCols() || rows != matrix.getRows()) {
 
-            logger.error("Not vector!");
+            logger.error("Not the same size!");
 
         }
 
-        Matrix real = new Basic1DMatrix(rows, 1);
+        Matrix real = new Basic1DMatrix(rows, cols);
 
-        Matrix imag = new Basic1DMatrix(rows, 1);
+        Matrix imag = new Basic1DMatrix(rows, cols);
 
         double r1, i1, r2, i2;
 
-        for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
 
-            r1 = R.get(i, 0);
+            for (int i = 0; i < rows; i++) {
 
-            r2 = matrix.getR().get(i, 0);
+                r1 = R.get(i, j);
 
-            i1 = I.get(i, 0);
+                r2 = matrix.getR().get(i, j);
 
-            i2 = matrix.getI().get(i, 0);
+                i1 = I.get(i, j);
 
-            real.set(i, 0, r1 * r2 - i1 * i2);
+                i2 = matrix.getI().get(i, j);
 
-            imag.set(i, 0, r1 * i2 + r2 * i1);
+                real.set(i, j, r1 * r2 - i1 * i2);
+
+                imag.set(i, j, r1 * i2 + r2 * i1);
+
+            }
 
         }
 

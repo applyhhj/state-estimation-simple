@@ -1,5 +1,6 @@
 package ic.app.se.simple.common;
 
+import org.la4j.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -346,6 +347,72 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static class MatrixExtend {
+
+        public static Matrix insertMatrix(Matrix thisMatrix, Matrix that) {
+
+            return insertMatrix(thisMatrix, that, 0, 0, 0, 0, that.rows(), that.columns());
+
+        }
+
+        public static Matrix insertMatrix(Matrix thisMatrix, Matrix that,
+                                          int destRow, int destColumn) {
+
+            return insertMatrix(thisMatrix, that, 0, 0, destRow, destColumn, that.rows(), that.columns());
+
+        }
+
+        public static Matrix insertMatrix(Matrix thisMatrix, Matrix that,
+                                          int destRow, int destColumn, int rows, int columns) {
+
+            return insertMatrix(thisMatrix, that, 0, 0, destRow, destColumn, rows, columns);
+
+        }
+
+        public static Matrix insertMatrix(Matrix thisMatrix, Matrix that,
+                                          int srcRow, int srcColumn, int destRow, int destColumn, int rows, int columns) {
+
+            if (rows < 0 || columns < 0) {
+                logger.error("Cannot have negative rows or columns: " + rows + "x" + columns);
+            }
+
+            if (destRow < 0 || destColumn < 0) {
+                logger.error("Cannot have negative destination position: " + destRow + ", " + destColumn);
+            }
+
+            if (srcRow < 0 || srcColumn < 0) {
+                logger.error("Cannot have negative source position: " + destRow + ", " + destColumn);
+            }
+
+            if (srcRow > that.rows() || srcColumn > that.columns()) {
+                logger.error("Source position out of bounds: " + srcRow + ", " + srcColumn);
+            }
+
+            if (destRow > thisMatrix.rows() || destColumn > thisMatrix.columns()) {
+                logger.error("Destination position out of bounds: " + srcRow + ", " + srcColumn);
+            }
+
+            if (destRow + rows > thisMatrix.rows() || destColumn + columns > thisMatrix.columns()) {
+                logger.error("Out of bounds: Cannot get " + rows + " rows and " + columns + " cols at " + srcRow + ", " + srcColumn + " from a " + that.rows() + "x" + that.columns() + " matrix.");
+            }
+
+            if (srcRow + rows > that.rows() || srcColumn + columns > that.columns()) {
+                logger.error("Out of bounds: Cannot get " + rows + " rows and " + columns + " cols at " + srcRow + ", " + srcColumn + " from a " + that.rows() + "x" + that.columns() + " matrix.");
+            }
+
+            Matrix result = thisMatrix.copy();
+
+            for (int i = 0; i < rows; ++i) {
+                for (int j = 0; j < columns; ++j) {
+                    result.set(i + destRow, j + destColumn, that.get(i + srcRow, j + srcColumn));
+                }
+            }
+
+            return result;
+
+        }
     }
 
 }

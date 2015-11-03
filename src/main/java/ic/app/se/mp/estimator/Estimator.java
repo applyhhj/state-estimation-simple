@@ -7,6 +7,8 @@ import org.la4j.matrix.sparse.CRSMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static ic.app.se.simple.common.Utils.MatrixExtend.insertMatrix;
+
 /**
  * Created by Administrator on 2015/11/2.
  */
@@ -30,6 +32,8 @@ public class Estimator {
 
     private ComplexMatrix St;
 
+    private Matrix HF;
+
     private ComplexMatrix Vnorm;
 
     private ComplexMatrix VnormMatrix;
@@ -48,7 +52,9 @@ public class Estimator {
 
         computeDSbrDv();
 
-        print();
+        HF = composeFullHMatrix();
+
+//        print();
 
     }
 
@@ -69,6 +75,117 @@ public class Estimator {
         Sf.print("Sf");
 
         St.print("St");
+
+        System.out.print("Full H matrix\n" + HF.toString());
+
+    }
+
+    /*  this is the measurement jacobi matrix
+    *          ang1      ang2 ....   angNb   Vm1   Vm2 ....  VmNb
+    *  PF1  dPF1/dAng1
+    *  PF2
+    *  .
+    *  .
+    *  PFN
+    *  PT1
+    *  .
+    *  .
+    *  PTN
+    *  PB1
+    *  .
+    *  .
+    *  PBN
+    *  ang1
+    *  ang2
+    *  .
+    *  .
+    *  angNb
+    *  QF1
+    *  .
+    *  .
+    *  QFN
+    *  QT1
+    *  .
+    *  .
+    *  QTN
+    *  QB1
+    *  .
+    *  .
+    *  QBN
+    *  Vm1
+    *  .
+    *  .
+    *  VmNb
+    *
+    *
+    * */
+    private Matrix composeFullHMatrix() {
+
+        int nb = powerSystem.getMpData().getBusData().getN();
+
+        int nbr = powerSystem.getMpData().getBranchData().getN();
+
+        int coln = 2 * nb;
+
+        int rown = 4 * nbr + 4 * nb;
+
+        Matrix zeroNb = new CRSMatrix(nb, nb);
+
+        Matrix oneNb = CRSMatrix.diagonal(nb, 1);
+
+        Matrix HFull = new CRSMatrix(rown, coln);
+
+//        HFull=HFull.insert(dSfDva.getR());
+        HFull = insertMatrix(HFull, dSfDva.getR());
+
+//        HFull=HFull.insert(dSfDvm.getR(), 0, nb, dSfDvm.getRows(), dSfDvm.getCols());
+        HFull = insertMatrix(HFull, dSfDvm.getR(), 0, nb);
+
+//        HFull=HFull.insert(dStDva.getR(), nbr, 0, dStDva.getRows(), dStDva.getCols());
+        HFull = insertMatrix(HFull, dStDva.getR(), nbr, 0);
+
+//        HFull.insert(dStDvm.getR(), nbr, nb, dStDvm.getRows(), dStDvm.getCols());
+        HFull = insertMatrix(HFull, dStDvm.getR(), nbr, nb);
+
+//        HFull.insert(dSbDva.getR(), nbr * 2, 0, dSbDva.getRows(), dSbDva.getCols());
+        HFull = insertMatrix(HFull, dSbDva.getR(), nbr * 2, 0);
+
+//        HFull.insert(dSbDvm.getR(), nbr * 2, nb, dSbDvm.getRows(), dSbDvm.getCols());
+        HFull = insertMatrix(HFull, dSbDvm.getR(), nbr * 2, nb);
+
+//        HFull.insert(oneNb, nbr * 2 + nb, 0, oneNb.rows(), oneNb.columns());
+        HFull = insertMatrix(HFull, oneNb, nbr * 2 + nb, 0);
+
+//        HFull.insert(zeroNb, nbr * 2 + nb, nb, zeroNb.rows(), zeroNb.columns());
+        HFull = insertMatrix(HFull, zeroNb, nbr * 2 + nb, nb);
+
+//        HFull.insert(dSfDva.getI(), 2 * (nb + nbr), 0, dSfDva.getRows(), dSfDva.getCols());
+        HFull = insertMatrix(HFull, dSfDva.getI(), 2 * (nb + nbr), 0);
+
+//        HFull.insert(dSfDvm.getI(), 2 * (nb + nbr), nb, dSfDvm.getRows(), dSfDvm.getCols());
+        HFull = insertMatrix(HFull, dSfDvm.getI(), 2 * (nb + nbr), nb);
+
+//        HFull.insert(dStDva.getI(), 3 * nbr + 2 * nb, 0, dStDva.getRows(), dStDva.getCols());
+        HFull = insertMatrix(HFull, dStDva.getI(), 3 * nbr + 2 * nb, 0);
+
+//        HFull.insert(dStDvm.getI(), 3 * nbr + 2 * nb, nb, dStDvm.getRows(), dStDvm.getCols());
+        HFull = insertMatrix(HFull, dStDvm.getI(), 3 * nbr + 2 * nb, nb);
+
+//        HFull.insert(dSbDva.getI(), 4 * nbr + 2 * nb, 0, dSbDva.getRows(), dSbDva.getCols());
+        HFull = insertMatrix(HFull, dSbDva.getI(), 4 * nbr + 2 * nb, 0);
+
+//        HFull.insert(dSbDvm.getI(), 4 * nbr + 2 * nb, nb, dSbDvm.getRows(), dSbDvm.getCols());
+        HFull = insertMatrix(HFull, dSbDvm.getI(), 4 * nbr + 2 * nb, nb);
+
+//        HFull.insert(zeroNb, 4 * nbr + 3 * nb, 0, zeroNb.rows(), zeroNb.columns());
+        HFull = insertMatrix(HFull, zeroNb, 4 * nbr + 3 * nb, 0);
+
+//        HFull.insert(oneNb, 4 * nbr + 3 * nb, nb, oneNb.rows(), oneNb.columns());
+        HFull = insertMatrix(HFull, oneNb, 4 * nbr + 3 * nb, nb);
+
+        System.out.print(HFull.toString());
+
+        return HFull;
 
     }
 
@@ -148,9 +265,32 @@ public class Estimator {
 
         dStDvm = VtMatrix.multiply(Yt.multiply(VnormMatrix).conj()).add(ItMatrix.conj().multiply(VNbrNbNormT));
 
-        Sf = Vf.dotMultiply(If.conj());
+        Sf = Vf.hadamardMultiply(If.conj());
 
-        St = Vt.dotMultiply(It.conj());
+        St = Vt.hadamardMultiply(It.conj());
+
+    }
+
+    private void computeDSbusDv() {
+
+        ComplexMatrix Ibus;
+
+        V = powerSystem.getPowerFlow().getV();
+
+        Ibus = powerSystem.getyMatrix().getYbus().multiply(V);
+
+        Vnorm = computeVnorm(V);
+
+        VMatrix = expandVectorToDiagonalMatrix(V);
+
+        Ibus = expandVectorToDiagonalMatrix(Ibus);
+
+        VnormMatrix = expandVectorToDiagonalMatrix(Vnorm);
+
+        dSbDvm = VMatrix.multiply(powerSystem.getyMatrix().getYbus().multiply(VnormMatrix).conj())
+                .add(Ibus.conj().multiply(VnormMatrix));
+
+        dSbDva = VMatrix.multiplyJ().multiply(Ibus.minus(powerSystem.getyMatrix().getYbus().multiply(VMatrix)).conj());
 
     }
 
@@ -178,29 +318,6 @@ public class Estimator {
         }
 
         return new ComplexMatrix(R, I);
-
-    }
-
-    private void computeDSbusDv() {
-
-        ComplexMatrix Ibus;
-
-        V = powerSystem.getPowerFlow().getV();
-
-        Ibus = powerSystem.getyMatrix().getYbus().multiply(V);
-
-        Vnorm = computeVnorm(V);
-
-        VMatrix = expandVectorToDiagonalMatrix(V);
-
-        Ibus = expandVectorToDiagonalMatrix(Ibus);
-
-        VnormMatrix = expandVectorToDiagonalMatrix(Vnorm);
-
-        dSbDvm = VMatrix.multiply(powerSystem.getyMatrix().getYbus().multiply(VnormMatrix).conj())
-                .add(Ibus.conj().multiply(VnormMatrix));
-
-        dSbDva = VMatrix.multiplyJ().multiply(Ibus.minus(powerSystem.getyMatrix().getYbus().multiply(VMatrix)).conj());
 
     }
 
