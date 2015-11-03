@@ -1,6 +1,7 @@
 package ic.app.se.simple.common;
 
 import org.la4j.Matrix;
+import org.la4j.matrix.dense.Basic1DMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,9 +100,43 @@ public class ComplexMatrix {
 
     }
 
+    public ComplexMatrix dotMultiply(ComplexMatrix matrix) {
+
+        if (cols != 1 || matrix.getCols() != 1) {
+
+            logger.error("Not vector!");
+
+        }
+
+        Matrix real = new Basic1DMatrix(rows, 1);
+
+        Matrix imag = new Basic1DMatrix(rows, 1);
+
+        double r1, i1, r2, i2;
+
+        for (int i = 0; i < rows; i++) {
+
+            r1 = R.get(i, 0);
+
+            r2 = matrix.getR().get(i, 0);
+
+            i1 = I.get(i, 0);
+
+            i2 = matrix.getI().get(i, 0);
+
+            real.set(i, 0, r1 * r2 - i1 * i2);
+
+            imag.set(i, 0, r1 * i2 + r2 * i1);
+
+        }
+
+        return new ComplexMatrix(real, imag);
+
+    }
+
     public void print(String title) {
 
-        System.out.print(title + "\n");
+        System.out.print("\n" + title + "\n");
 
         print();
 

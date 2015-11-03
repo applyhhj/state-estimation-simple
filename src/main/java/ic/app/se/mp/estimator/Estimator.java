@@ -26,6 +26,10 @@ public class Estimator {
 
     private ComplexMatrix dStDva;
 
+    private ComplexMatrix Sf;
+
+    private ComplexMatrix St;
+
     private ComplexMatrix Vnorm;
 
     private ComplexMatrix VnormMatrix;
@@ -42,7 +46,9 @@ public class Estimator {
 
         computeDSbusDv();
 
-//        print();
+        computeDSbrDv();
+
+        print();
 
     }
 
@@ -52,19 +58,35 @@ public class Estimator {
 
         dSbDva.print("dSbus_dVa");
 
+        dSfDvm.print("dSf_dVm");
+
+        dSfDva.print("dSf_dVa");
+
+        dStDvm.print("dSt_dVm");
+
+        dStDva.print("dSt_dVa");
+
+        Sf.print("Sf");
+
+        St.print("St");
+
     }
 
     private void computeDSbrDv() {
 
-        ComplexMatrix Yf, Yt, IfMatrix, ItMatrix, Vf, Vt, VfNorm, VtNorm, VfMatrix, VtMatrix;
+        ComplexMatrix Yf, Yt, If, It, IfMatrix, ItMatrix, Vf, Vt, VfNorm, VtNorm, VfMatrix, VtMatrix;
 
         Yf = powerSystem.getyMatrix().getYf();
 
         Yt = powerSystem.getyMatrix().getYt();
 
-        IfMatrix = expandVectorToDiagonalMatrix(Yf.multiply(V));
+        If = Yf.multiply(V);
 
-        ItMatrix = expandVectorToDiagonalMatrix(Yt.multiply(V));
+        It = Yt.multiply(V);
+
+        IfMatrix = expandVectorToDiagonalMatrix(If);
+
+        ItMatrix = expandVectorToDiagonalMatrix(It);
 
         Vf = getVft(powerSystem.getMpData().getBranchData().getI(), V);
 
@@ -118,13 +140,17 @@ public class Estimator {
 
         VNbrNbNormT = toSpareMatrix(idxBranch, idxBusTInt, VtNorm, NBranch, NBus);
 
-        dSbDva = IfMatrix.conj().multiply(VNbrNbF).minus(VfMatrix.multiply(Yf.multiply(VMatrix).conj())).multiplyJ();
+        dSfDva = IfMatrix.conj().multiply(VNbrNbF).minus(VfMatrix.multiply(Yf.multiply(VMatrix).conj())).multiplyJ();
 
         dSfDvm = VfMatrix.multiply(Yf.multiply(VnormMatrix).conj()).add(IfMatrix.conj().multiply(VNbrNbNormF));
 
         dStDva = ItMatrix.conj().multiply(VNbrNbT).minus(VtMatrix.multiply(Yt.multiply(VMatrix).conj())).multiplyJ();
 
         dStDvm = VtMatrix.multiply(Yt.multiply(VnormMatrix).conj()).add(ItMatrix.conj().multiply(VNbrNbNormT));
+
+        Sf = Vf.dotMultiply(If.conj());
+
+        St = Vt.dotMultiply(It.conj());
 
     }
 
@@ -241,7 +267,7 @@ public class Estimator {
 
         for (int i = 0; i < n; i++) {
 
-            internalIdx = powerSystem.getMpData().getBusData().getTOI().get(ij[i]);
+            internalIdx = powerSystem.getMpData().getBusData().getTOI().get(ij[i]) - 1;
 
             vftR.set(i, 0, VMatrix.getR().get(internalIdx, 0));
 
