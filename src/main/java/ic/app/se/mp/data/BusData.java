@@ -51,6 +51,8 @@ public class BusData {
 
     private int n;
 
+    private int nrefI;
+
     public BusData() {
 
         TIO = new HashMap<Integer, Integer>();
@@ -237,6 +239,8 @@ public class BusData {
                 if (busBranchNumberMap.containsKey(ntmp)) {
 
                     TIO.put(idx, ntmp);
+
+                    nrefI = idx;
 
                     busBranchNumberMap.remove(ntmp);
 

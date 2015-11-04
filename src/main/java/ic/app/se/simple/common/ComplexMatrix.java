@@ -138,6 +138,32 @@ public class ComplexMatrix {
 
     }
 
+    public Matrix abs() {
+
+        Matrix ret = Matrix.zero(rows, cols);
+
+        double real, imag, abs;
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < cols; j++) {
+
+                real = R.get(i, j);
+
+                imag = I.get(i, j);
+
+                abs = Math.sqrt(real * real + imag * imag);
+
+                ret.set(i, j, abs);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
     public void print(String title) {
 
         System.out.print("\n" + title + "\n");

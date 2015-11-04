@@ -19,6 +19,8 @@ public class PowerSystem {
 
     private Estimator estimator;
 
+    private MeasureSystem measureSystem;
+
     public PowerSystem(String mpCaseDataPath) {
 
         this.mpCaseDataPath = mpCaseDataPath;
@@ -26,6 +28,8 @@ public class PowerSystem {
         initData();
 
         this.estimator = new Estimator(this);
+
+        this.measureSystem = new MeasureSystem(this);
 
     }
 
@@ -50,4 +54,9 @@ public class PowerSystem {
     public PowerFlow getPowerFlow() {
         return powerFlow;
     }
+
+    public Estimator getEstimator() {
+        return estimator;
+    }
+
 }

@@ -31,6 +31,12 @@ public class PowerFlow {
 
     private ComplexMatrix V;
 
+    private Matrix Vm;
+
+    private Matrix Va;
+
+    private ComplexMatrix Sbus;
+
     public PowerFlow(MPData mpData, YMatrix yMatrix) {
 
         this.mpData = mpData;
@@ -72,6 +78,8 @@ public class PowerFlow {
 
         }
 
+        Sbus = new ComplexMatrix(SbusP, SbusQ);
+
     }
 
     //    internal bus numbering
@@ -80,6 +88,10 @@ public class PowerFlow {
         Vr = new CRSMatrix(mpData.getBusData().getN(), 1);
 
         Vi = new CRSMatrix(mpData.getBusData().getN(), 1);
+
+        Vm = new CRSMatrix(mpData.getBusData().getN(), 1);
+
+        Va = new CRSMatrix(mpData.getBusData().getN(), 1);
 
         int idx;
 
@@ -92,6 +104,11 @@ public class PowerFlow {
             vm = mpData.getBusData().getVoltage()[idx];
 
             va = mpData.getBusData().getAngle()[idx];
+
+//            convert to internal bus number
+            Vm.set(i, 0, vm);
+
+            Va.set(i, 0, va);
 
             Vr.set(i, 0, vm * Math.cos(va));
 
@@ -141,5 +158,17 @@ public class PowerFlow {
 
     public ComplexMatrix getV() {
         return V;
+    }
+
+    public ComplexMatrix getSbus() {
+        return Sbus;
+    }
+
+    public Matrix getVm() {
+        return Vm;
+    }
+
+    public Matrix getVa() {
+        return Va;
     }
 }

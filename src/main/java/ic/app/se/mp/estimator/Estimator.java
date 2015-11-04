@@ -183,8 +183,6 @@ public class Estimator {
 //        HFull.insert(oneNb, 4 * nbr + 3 * nb, nb, oneNb.rows(), oneNb.columns());
         HFull = insertMatrix(HFull, oneNb, 4 * nbr + 3 * nb, nb);
 
-        System.out.print(HFull.toString());
-
         return HFull;
 
     }
@@ -402,5 +400,13 @@ public class Estimator {
 
     public ComplexMatrix getdSbDvm() {
         return dSbDvm;
+    }
+
+    public ComplexMatrix getSf() {
+        return Sf;
+    }
+
+    public ComplexMatrix getSt() {
+        return St;
     }
 }
