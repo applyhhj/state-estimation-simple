@@ -461,5 +461,7 @@ public class BusData {
         this.n = n;
     }
 
-
+    public int getNrefI() {
+        return nrefI;
+    }
 }

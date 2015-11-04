@@ -255,11 +255,11 @@ public class Estimator {
 
         VNbrNbNormT = toSpareMatrix(idxBranch, idxBusTInt, VtNorm, NBranch, NBus);
 
-        dSfDva = IfMatrix.conj().multiply(VNbrNbF).minus(VfMatrix.multiply(Yf.multiply(VMatrix).conj())).multiplyJ();
+        dSfDva = IfMatrix.conj().multiply(VNbrNbF).subtract(VfMatrix.multiply(Yf.multiply(VMatrix).conj())).multiplyJ();
 
         dSfDvm = VfMatrix.multiply(Yf.multiply(VnormMatrix).conj()).add(IfMatrix.conj().multiply(VNbrNbNormF));
 
-        dStDva = ItMatrix.conj().multiply(VNbrNbT).minus(VtMatrix.multiply(Yt.multiply(VMatrix).conj())).multiplyJ();
+        dStDva = ItMatrix.conj().multiply(VNbrNbT).subtract(VtMatrix.multiply(Yt.multiply(VMatrix).conj())).multiplyJ();
 
         dStDvm = VtMatrix.multiply(Yt.multiply(VnormMatrix).conj()).add(ItMatrix.conj().multiply(VNbrNbNormT));
 
@@ -288,7 +288,7 @@ public class Estimator {
         dSbDvm = VMatrix.multiply(powerSystem.getyMatrix().getYbus().multiply(VnormMatrix).conj())
                 .add(Ibus.conj().multiply(VnormMatrix));
 
-        dSbDva = VMatrix.multiplyJ().multiply(Ibus.minus(powerSystem.getyMatrix().getYbus().multiply(VMatrix)).conj());
+        dSbDva = VMatrix.multiplyJ().multiply(Ibus.subtract(powerSystem.getyMatrix().getYbus().multiply(VMatrix)).conj());
 
     }
 

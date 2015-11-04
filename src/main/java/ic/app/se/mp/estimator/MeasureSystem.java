@@ -4,6 +4,9 @@ import ic.app.se.simple.common.ComplexMatrix;
 import org.la4j.Matrix;
 import org.la4j.matrix.sparse.CRSMatrix;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static ic.app.se.simple.common.Utils.MatrixExtend.insertMatrix;
@@ -41,6 +44,16 @@ public class MeasureSystem {
 
     private int nz;
 
+    private List<Integer> excludeIdxSf;
+
+    private List<Integer> excludeIdxSt;
+
+    private List<Integer> excludeIdxV;
+
+    private List<Integer> zExclude;
+
+    private List<Integer> stateExclude;
+
     private Random random;
 
     public MeasureSystem(PowerSystem powerSystem) {
@@ -50,6 +63,16 @@ public class MeasureSystem {
         fullscale = 30;
 
         random = new Random();
+
+        excludeIdxSf = new ArrayList<Integer>();
+
+        excludeIdxSt = new ArrayList<Integer>();
+
+        excludeIdxV = new ArrayList<Integer>();
+
+        zExclude = new ArrayList<Integer>();
+
+        stateExclude = new ArrayList<Integer>();
 
         sf = powerSystem.getEstimator().getSf();
 
@@ -156,6 +179,86 @@ public class MeasureSystem {
             sig = sigma.get(i, 0);
 
             WInv.set(i, i, 1 / sig / sig);
+
+        }
+
+    }
+
+    private void computeExcludeIndices() {
+
+        int refNumI = powerSystem.getMpData().getBusData().getNrefI();
+
+        int[] I = powerSystem.getMpData().getBranchData().getI();
+
+        int[] J = powerSystem.getMpData().getBranchData().getJ();
+
+        Map<Integer, Integer> TOI = powerSystem.getMpData().getBusData().getTOI();
+
+        for (int i = 0; i < nbr; i++) {
+
+            if (TOI.get(I[i]) == refNumI) {
+
+                excludeIdxSf.add(i);
+
+            }
+
+            if (TOI.get(J[i]) == refNumI) {
+
+                excludeIdxSt.add(i);
+
+            }
+
+        }
+
+        excludeIdxV.add(refNumI - 1);
+
+        zExclude.clear();
+
+        stateExclude.clear();
+
+        int exIdx;
+
+        for (int i = 0; i < excludeIdxSf.size(); i++) {
+
+            exIdx = excludeIdxSf.get(i);
+
+//            Pf
+            zExclude.add(exIdx);
+
+//            Qf
+            zExclude.add(exIdx + 2 * (nbr + nb));
+
+        }
+
+        for (int i = 0; i < excludeIdxSt.size(); i++) {
+
+            exIdx = excludeIdxSt.get(i);
+
+//            Pt
+            zExclude.add(exIdx + nbr);
+
+//            Qt
+            zExclude.add(exIdx + 3 * nbr + 2 * nb);
+
+        }
+
+        for (int i = 0; i < excludeIdxV.size(); i++) {
+
+            exIdx = excludeIdxV.get(i);
+
+//            Pbus
+            zExclude.add(exIdx + 2 * nbr);
+
+//            Qbus
+            zExclude.add(exIdx + 4 * nbr + 2 * nb);
+
+//            Va
+            zExclude.add(exIdx + 2 * nbr + nb);
+
+//            Vm
+            zExclude.add(exIdx + 4 * nbr + 3 * nb);
+
+            stateExclude.add(exIdx);
 
         }
 

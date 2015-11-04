@@ -74,7 +74,7 @@ public class ComplexMatrix {
 
         Matrix r, i;
 
-        r = R.multiply(matrix.getR()).add(I.multiply(-1).multiply(matrix.getI()));
+        r = R.multiply(matrix.getR()).subtract(I.multiply(matrix.getI()));
 
         i = R.multiply(matrix.getI()).add(I.multiply(matrix.getR()));
 
@@ -94,9 +94,9 @@ public class ComplexMatrix {
 
     }
 
-    public ComplexMatrix minus(ComplexMatrix matrix) {
+    public ComplexMatrix subtract(ComplexMatrix matrix) {
 
-        return new ComplexMatrix(R.add(matrix.getR().multiply(-1)), I.add(matrix.getI().multiply(-1)));
+        return new ComplexMatrix(R.subtract(matrix.getR()), I.subtract(matrix.getI()));
 
     }
 

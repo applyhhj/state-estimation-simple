@@ -3,6 +3,8 @@ package ic.app.se.mp.estimator;
 import ic.app.se.mp.data.MPData;
 import ic.app.se.mp.data.PowerFlow;
 import ic.app.se.mp.data.YMatrix;
+import ic.app.se.simple.common.ComplexMatrix;
+import org.la4j.Matrix;
 
 /**
  * Created by Administrator on 2015/11/2.
@@ -21,6 +23,8 @@ public class PowerSystem {
 
     private MeasureSystem measureSystem;
 
+    private ComplexMatrix state;
+
     public PowerSystem(String mpCaseDataPath) {
 
         this.mpCaseDataPath = mpCaseDataPath;
@@ -30,6 +34,9 @@ public class PowerSystem {
         this.estimator = new Estimator(this);
 
         this.measureSystem = new MeasureSystem(this);
+
+//        flat start
+        state = new ComplexMatrix(Matrix.unit(mpData.getBusData().getN(), 1), Matrix.zero(mpData.getBusData().getN(), 1));
 
     }
 
