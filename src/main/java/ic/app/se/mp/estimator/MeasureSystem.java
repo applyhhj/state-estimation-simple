@@ -1,6 +1,7 @@
 package ic.app.se.mp.estimator;
 
 import ic.app.se.simple.common.ComplexMatrix;
+import ic.app.se.simple.common.Utils;
 import org.la4j.Matrix;
 import org.la4j.matrix.sparse.CRSMatrix;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static ic.app.se.simple.common.Utils.MatrixExtend.insertMatrix;
+import static ic.app.se.simple.common.Utils.MatrixExtend.toMeasurementVector;
 
 /**
  * Created by Administrator on 2015/11/2.
@@ -24,11 +25,11 @@ public class MeasureSystem {
 
     private ComplexMatrix sbus;
 
-    private Matrix Vm;
+    private Matrix Vpfm;
 
-    private Matrix Va;
+    private Matrix Vpfa;
 
-    private Matrix z;
+    private Matrix zreal;
 
     private Matrix zm;
 
@@ -48,11 +49,11 @@ public class MeasureSystem {
 
     private List<Integer> excludeIdxSt;
 
-    private List<Integer> excludeIdxV;
+    private List<Integer> VbusExcludeIds;
 
-    private List<Integer> zExclude;
+    private List<Integer> zExcludeIds;
 
-    private List<Integer> stateExclude;
+    private List<Integer> stateExcludeIds;
 
     private Random random;
 
@@ -68,11 +69,11 @@ public class MeasureSystem {
 
         excludeIdxSt = new ArrayList<Integer>();
 
-        excludeIdxV = new ArrayList<Integer>();
+        VbusExcludeIds = new ArrayList<Integer>();
 
-        zExclude = new ArrayList<Integer>();
+        zExcludeIds = new ArrayList<Integer>();
 
-        stateExclude = new ArrayList<Integer>();
+        stateExcludeIds = new ArrayList<Integer>();
 
         sf = powerSystem.getEstimator().getSf();
 
@@ -80,9 +81,9 @@ public class MeasureSystem {
 
         sbus = powerSystem.getPowerFlow().getSbus();
 
-        Vm = powerSystem.getPowerFlow().getVm();
+        Vpfm = powerSystem.getPowerFlow().getVm();
 
-        Va = powerSystem.getPowerFlow().getVa();
+        Vpfa = powerSystem.getPowerFlow().getVa();
 
         nb = powerSystem.getMpData().getBusData().getN();
 
@@ -94,7 +95,11 @@ public class MeasureSystem {
 
         importTrueMeasurement();
 
+        generateSigma();
+
         computeWInv();
+
+        computeExcludeIndices();
 
         print();
 
@@ -102,29 +107,13 @@ public class MeasureSystem {
 
     public void print() {
 
-        System.out.print("\nReal measurement:\n" + z.toString());
+        System.out.print("\nReal measurement:\n" + zreal.toString());
 
     }
 
     private void importTrueMeasurement() {
 
-        z = Matrix.zero(nz, 1);
-
-        z = insertMatrix(z, sf.getR());
-
-        z = insertMatrix(z, st.getR(), nbr, 0);
-
-        z = insertMatrix(z, sbus.getR(), 2 * nbr, 0);
-
-        z = insertMatrix(z, Va, 2 * nbr + nb, 0);
-
-        z = insertMatrix(z, sf.getI(), 2 * (nbr + nb), 0);
-
-        z = insertMatrix(z, st.getI(), 3 * nbr + 2 * nb, 0);
-
-        z = insertMatrix(z, sbus.getI(), 4 * nbr + 2 * nb, 0);
-
-        z = insertMatrix(z, Vm, 4 * nbr + 3 * nb, 0);
+        zreal = toMeasurementVector(nz, nbr, nb, sf, st, sbus, Vpfa, Vpfm);
 
     }
 
@@ -146,7 +135,7 @@ public class MeasureSystem {
 
         sigma.insert(sbus.abs().multiply(0.02).add(Matrix.unit(nb, 1).multiply(0.0052).multiply(fullscale)), 4 * nbr + 2 * nb, 0);
 
-        sigma.insert(Vm.multiply(0.02).add(Matrix.unit(nb, 1).multiply(1.1 * 0.0052)), 4 * nbr + 3 * nb, 0);
+        sigma.insert(Vpfm.multiply(0.02).add(Matrix.unit(nb, 1).multiply(1.1 * 0.0052)), 4 * nbr + 3 * nb, 0);
 
         sigma.multiply(1 / 3.0);
 
@@ -164,7 +153,7 @@ public class MeasureSystem {
 
     private double getMeasureI(int i) {
 
-        return random.nextGaussian() * sigma.get(i, 0) + z.get(i, 0);
+        return random.nextGaussian() * sigma.get(i, 0) + zreal.get(i, 0);
 
     }
 
@@ -210,11 +199,11 @@ public class MeasureSystem {
 
         }
 
-        excludeIdxV.add(refNumI - 1);
+        VbusExcludeIds.add(refNumI - 1);
 
-        zExclude.clear();
+        zExcludeIds.clear();
 
-        stateExclude.clear();
+        stateExcludeIds.clear();
 
         int exIdx;
 
@@ -223,10 +212,10 @@ public class MeasureSystem {
             exIdx = excludeIdxSf.get(i);
 
 //            Pf
-            zExclude.add(exIdx);
+            zExcludeIds.add(exIdx);
 
 //            Qf
-            zExclude.add(exIdx + 2 * (nbr + nb));
+            zExcludeIds.add(exIdx + 2 * (nbr + nb));
 
         }
 
@@ -235,33 +224,73 @@ public class MeasureSystem {
             exIdx = excludeIdxSt.get(i);
 
 //            Pt
-            zExclude.add(exIdx + nbr);
+            zExcludeIds.add(exIdx + nbr);
 
 //            Qt
-            zExclude.add(exIdx + 3 * nbr + 2 * nb);
+            zExcludeIds.add(exIdx + 3 * nbr + 2 * nb);
 
         }
 
-        for (int i = 0; i < excludeIdxV.size(); i++) {
+        for (int i = 0; i < VbusExcludeIds.size(); i++) {
 
-            exIdx = excludeIdxV.get(i);
+            exIdx = VbusExcludeIds.get(i);
 
 //            Pbus
-            zExclude.add(exIdx + 2 * nbr);
+            zExcludeIds.add(exIdx + 2 * nbr);
 
 //            Qbus
-            zExclude.add(exIdx + 4 * nbr + 2 * nb);
+            zExcludeIds.add(exIdx + 4 * nbr + 2 * nb);
 
 //            Va
-            zExclude.add(exIdx + 2 * nbr + nb);
+            zExcludeIds.add(exIdx + 2 * nbr + nb);
 
 //            Vm
-            zExclude.add(exIdx + 4 * nbr + 3 * nb);
+            zExcludeIds.add(exIdx + 4 * nbr + 3 * nb);
 
-            stateExclude.add(exIdx);
+            stateExcludeIds.add(exIdx);
+
+            stateExcludeIds.add(nb + exIdx);
 
         }
 
+        zExcludeIds.sort(Utils.intComparator);
+
+        stateExcludeIds.sort(Utils.intComparator);
+
+        VbusExcludeIds.sort(Utils.intComparator);
+
+    }
+
+    public int getNz() {
+        return nz;
+    }
+
+    public int getNb() {
+        return nb;
+    }
+
+    public int getNbr() {
+        return nbr;
+    }
+
+    public List<Integer> getzExcludeIds() {
+        return zExcludeIds;
+    }
+
+    public List<Integer> getStateExcludeIds() {
+        return stateExcludeIds;
+    }
+
+    public Matrix getWInv() {
+        return WInv;
+    }
+
+    public Matrix getZreal() {
+        return zreal;
+    }
+
+    public List<Integer> getVbusExcludeIds() {
+        return VbusExcludeIds;
     }
 
 }

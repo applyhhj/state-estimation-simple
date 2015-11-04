@@ -1,13 +1,22 @@
 package ic.app.se.mp.estimator;
 
 import ic.app.se.simple.common.ComplexMatrix;
+import ic.app.se.simple.common.Constants;
 import org.la4j.Matrix;
+import org.la4j.Vector;
+import org.la4j.inversion.GaussJordanInverter;
+import org.la4j.linear.GaussianSolver;
 import org.la4j.matrix.dense.Basic1DMatrix;
 import org.la4j.matrix.sparse.CRSMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static ic.app.se.simple.common.Utils.MatrixExtend.insertMatrix;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ic.app.se.simple.common.Utils.MatrixExtend.*;
 
 /**
  * Created by Administrator on 2015/11/2.
@@ -34,15 +43,29 @@ public class Estimator {
 
     private Matrix HF;
 
-    private ComplexMatrix Vnorm;
+    private Matrix WInv;
 
-    private ComplexMatrix VnormMatrix;
+    private ComplexMatrix VpfNorm;
 
-    private ComplexMatrix V;
+    private ComplexMatrix VpfNormMatrix;
 
-    private ComplexMatrix VMatrix;
+    private ComplexMatrix Vpf;
+
+    private ComplexMatrix VpfMatrix;
 
     private PowerSystem powerSystem;
+
+    private boolean converged;
+
+    private boolean oneBadAtATime;
+
+    private int maxItBadData;
+
+    private int maxIt;
+
+    private double badDataThreshold;
+
+    private GaussianSolver gaussianSolver;
 
     public Estimator(PowerSystem powerSystem) {
 
@@ -54,7 +77,400 @@ public class Estimator {
 
         HF = composeFullHMatrix();
 
+        WInv = powerSystem.getMeasureSystem().getWInv();
+
+        converged = false;
+
+        oneBadAtATime = true;
+
+        maxItBadData = 50;
+
+        maxIt = 100;
+
+        badDataThreshold = 6.25;
+
 //        print();
+
+    }
+
+    public void estimate() {
+
+        int ibad = 1;
+
+        boolean hasBadData;
+
+        Matrix zest = computeEstimatedMeasurement(powerSystem);
+
+        Matrix deltz = powerSystem.getMeasureSystem().getZreal().subtract(zest);
+
+        Matrix normF = deltz.transpose().multiply(WInv).multiply(deltz);
+
+        while (!converged && ibad < maxItBadData) {
+
+            hasBadData = false;
+
+            Matrix HH = getHH(HF);
+
+            Matrix WWInv = getWWInv(WInv);
+
+            Matrix ddeltz = getDdeltz(deltz);
+
+            ComplexMatrix VVs = getVVs(powerSystem.getState());
+
+            Matrix VVsa = VVs.angle();
+
+            Matrix VVsm = VVs.abs();
+
+            int i = 0;
+
+            while (!converged && i++ < maxIt) {
+
+                Matrix b = HH.transpose().multiply(WWInv).multiply(ddeltz);
+
+                Matrix A = HH.transpose().multiply(WWInv).multiply(HH);
+
+                gaussianSolver = new GaussianSolver(A);
+
+                Vector dx = gaussianSolver.solve(b.toColumnVector());
+
+                VVsa = VVsa.add(getDdxa(dx));
+
+                VVsm = VVsm.add(getDdxm(dx));
+
+                updateVoltage(powerSystem.getState(), VVsa, VVsm, powerSystem.getMeasureSystem().getVbusExcludeIds());
+
+                zest = computeEstimatedMeasurement(powerSystem);
+
+                deltz = powerSystem.getMeasureSystem().getZreal().subtract(zest);
+
+                ddeltz = getDdeltz(deltz);
+
+                normF = ddeltz.transpose().multiply(WWInv).multiply(ddeltz);
+
+                Matrix dx2 = dx.toRowMatrix().multiply(dx).toRowMatrix();
+
+                if (dx2.get(0, 0) < Constants.ESTIMATOR.TOL) {
+
+                    converged = true;
+
+                    if (powerSystem.getOption().isVerbose()) {
+
+                        logger.info("State estimator converged in {} iterations.", i);
+
+                    }
+
+                }
+
+            }
+
+            if (!converged && powerSystem.getOption().isVerbose()) {
+
+                logger.info("State estimator did not converged in {} iterations.", i);
+
+            }
+
+//            check bad data
+            Matrix WW = new GaussJordanInverter(WWInv).inverse();
+
+            Matrix HTWHInv = new GaussJordanInverter(HH.transpose().multiply(WWInv).multiply(HH)).inverse();
+
+            Matrix WR = WW.subtract(HH.multiply(HTWHInv).multiply(HH.transpose()).multiply(0.95));
+
+            Matrix WRInvDiagVec = getDiagnalInvVector(WR);
+
+            Matrix rN2 = ddeltz.hadamardProduct(ddeltz).hadamardProduct(WRInvDiagVec);
+
+            double maxBad = rN2.max();
+
+            Map<Integer, Double> baddata = badDataRecognition(rN2, oneBadAtATime);
+
+            if (baddata.size() > 0) {
+
+                hasBadData = true;
+
+                converged = false;
+
+                updateZExclude(baddata, powerSystem.getMeasureSystem().getzExcludeIds());
+
+            }
+
+            if (!hasBadData) {
+
+                converged = true;
+
+                if (powerSystem.getOption().isVerbose()) {
+
+                    logger.info("No remaining bad data, after discarding data {} time(s).", ibad - 1);
+
+                }
+
+            }
+
+            ibad++;
+
+        }
+
+    }
+
+    private void updateZExclude(Map<Integer, Double> baddata, List<Integer> zExclude) {
+
+        List<Integer> badids = new ArrayList<Integer>();
+
+        int excluded;
+
+        for (Map.Entry<Integer, Double> e : baddata.entrySet()) {
+
+            excluded = 0;
+
+            for (Integer exczi : zExclude) {
+
+                if (e.getKey() >= exczi) {
+
+                    excluded++;
+
+                }
+
+            }
+
+            badids.add(e.getKey() + excluded);
+
+        }
+
+        for (Integer badidx : badids) {
+
+            int i = 0;
+
+            while (i < zExclude.size()) {
+
+                if (badidx == zExclude.get(i)) {
+
+                    break;
+
+                } else {
+
+                    if (badidx < zExclude.get(i)) {
+
+                        zExclude.add(i, badidx);
+
+                    }
+
+                }
+
+            }
+
+            if (i == zExclude.size()) {
+
+                zExclude.add(badidx);
+
+            }
+
+        }
+
+    }
+
+    private Map<Integer, Double> badDataRecognition(Matrix rn2, boolean oneBadAtATime) {
+
+        Map<Integer, Double> ret = new HashMap<Integer, Double>();
+
+        if (oneBadAtATime) {
+
+            double maxb = rn2.maxInColumn(0);
+
+            for (int i = 0; i < rn2.rows(); i++) {
+
+                if (rn2.get(i, 0) >= maxb) {
+
+                    ret.put(i, maxb);
+
+                }
+
+            }
+
+        } else {
+
+            for (int i = 0; i < rn2.rows(); i++) {
+
+                double tmp = rn2.get(i, 0);
+
+                if (tmp >= badDataThreshold) {
+
+                    ret.put(i, tmp);
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    private Matrix getDiagnalInvVector(Matrix in) {
+
+        int r = Math.min(in.rows(), in.columns());
+
+        Matrix ret = Matrix.zero(r, 1);
+
+        for (int i = 0; i < r; i++) {
+
+            ret.set(i, 0, 1 / in.get(i, i));
+
+        }
+
+        return ret;
+
+    }
+
+    private void updateVoltage(ComplexMatrix v, Matrix vvsa, Matrix vvsm, List<Integer> excludeV) {
+
+        int vi = 0;
+
+        int vvi = 0;
+
+        int exci = 0;
+
+        while (vi < v.getRows()) {
+
+            if (vi != excludeV.get(exci)) {
+
+                v.getR().set(vi, 0, vvsm.get(vvi, 0) * Math.cos(vvsa.get(vvi, 0)));
+
+                v.getI().set(vi, 0, vvsm.get(vvi, 0) * Math.sin(vvsa.get(vvi, 0)));
+
+                vi++;
+
+                vvi++;
+
+            } else {
+
+                vi++;
+
+                exci++;
+
+            }
+
+        }
+
+    }
+
+    private Matrix getDdxa(Vector dx) {
+
+        int nb = powerSystem.getMpData().getBusData().getN();
+
+        Matrix dxa = dx.sliceLeft(nb - 1).toColumnMatrix();
+
+        List<Integer> exclude = new ArrayList<Integer>();
+
+        for (Integer excIdx : powerSystem.getMeasureSystem().getStateExcludeIds()) {
+
+            if (excIdx < nb) {
+
+                exclude.add(excIdx);
+
+            }
+
+        }
+
+        return excludeMatrix(dxa, exclude, null);
+
+    }
+
+    private Matrix getDdxm(Vector dx) {
+
+        int nb = powerSystem.getMpData().getBusData().getN();
+
+        Matrix dxm = dx.sliceRight(nb).toColumnMatrix();
+
+        List<Integer> exclude = new ArrayList<Integer>();
+
+        for (Integer excIdx : powerSystem.getMeasureSystem().getStateExcludeIds()) {
+
+            if (excIdx >= nb) {
+
+                exclude.add(excIdx - nb);
+
+            }
+
+        }
+
+        return excludeMatrix(dxm, exclude, null);
+
+    }
+
+    private Matrix getHH(Matrix HF) {
+
+        return excludeMatrix(
+                HF,
+                powerSystem.getMeasureSystem().getzExcludeIds(),
+                powerSystem.getMeasureSystem().getStateExcludeIds()
+        );
+
+    }
+
+    private Matrix getWWInv(Matrix WInv) {
+
+        return excludeMatrix(
+                WInv,
+                powerSystem.getMeasureSystem().getzExcludeIds(),
+                powerSystem.getMeasureSystem().getzExcludeIds()
+        );
+
+    }
+
+    private Matrix getDdeltz(Matrix deltz) {
+
+        return excludeMatrix(
+                deltz,
+                powerSystem.getMeasureSystem().getzExcludeIds(),
+                null
+        );
+
+    }
+
+    private ComplexMatrix getVVs(ComplexMatrix Vs) {
+
+        return Vs.excludeSubMatrix(powerSystem.getMeasureSystem().getVbusExcludeIds(), null);
+
+    }
+
+    public Matrix computeEstimatedMeasurement(PowerSystem powerSystem) {
+
+        ComplexMatrix Vsf = getVft(
+                powerSystem.getMpData().getBranchData().getI(),
+                powerSystem.getState(),
+                powerSystem.getMpData().getBusData().getTOI());
+
+        ComplexMatrix Vst = getVft(
+                powerSystem.getMpData().getBranchData().getJ(),
+                powerSystem.getState(),
+                powerSystem.getMpData().getBusData().getTOI());
+
+        ComplexMatrix Vs = powerSystem.getState();
+
+        ComplexMatrix sfe, ste, sbuse;
+
+        Matrix Vsa, Vsm;
+
+        sfe = Vsf.hadamardMultiply(powerSystem.getyMatrix().getYf().multiply(Vs).conj());
+
+        ste = Vst.hadamardMultiply(powerSystem.getyMatrix().getYt().multiply(Vs).conj());
+
+        sbuse = Vs.hadamardMultiply(powerSystem.getyMatrix().getYbus().multiply(Vs).conj());
+
+        Vsa = Vs.angle();
+
+        Vsm = Vs.abs();
+
+        return toMeasurementVector(
+                powerSystem.getMeasureSystem().getNz(),
+                powerSystem.getMeasureSystem().getNbr(),
+                powerSystem.getMeasureSystem().getNb(),
+                sfe,
+                ste,
+                sbuse,
+                Vsa,
+                Vsm);
 
     }
 
@@ -195,21 +611,21 @@ public class Estimator {
 
         Yt = powerSystem.getyMatrix().getYt();
 
-        If = Yf.multiply(V);
+        If = Yf.multiply(Vpf);
 
-        It = Yt.multiply(V);
+        It = Yt.multiply(Vpf);
 
         IfMatrix = expandVectorToDiagonalMatrix(If);
 
         ItMatrix = expandVectorToDiagonalMatrix(It);
 
-        Vf = getVft(powerSystem.getMpData().getBranchData().getI(), V);
+        Vf = getVft(powerSystem.getMpData().getBranchData().getI(), Vpf, powerSystem.getMpData().getBusData().getTOI());
 
-        Vt = getVft(powerSystem.getMpData().getBranchData().getJ(), V);
+        Vt = getVft(powerSystem.getMpData().getBranchData().getJ(), Vpf, powerSystem.getMpData().getBusData().getTOI());
 
-        VfNorm = getVft(powerSystem.getMpData().getBranchData().getI(), Vnorm);
+        VfNorm = getVft(powerSystem.getMpData().getBranchData().getI(), VpfNorm, powerSystem.getMpData().getBusData().getTOI());
 
-        VtNorm = getVft(powerSystem.getMpData().getBranchData().getJ(), Vnorm);
+        VtNorm = getVft(powerSystem.getMpData().getBranchData().getJ(), VpfNorm, powerSystem.getMpData().getBusData().getTOI());
 
         VfMatrix = expandVectorToDiagonalMatrix(Vf);
 
@@ -255,13 +671,13 @@ public class Estimator {
 
         VNbrNbNormT = toSpareMatrix(idxBranch, idxBusTInt, VtNorm, NBranch, NBus);
 
-        dSfDva = IfMatrix.conj().multiply(VNbrNbF).subtract(VfMatrix.multiply(Yf.multiply(VMatrix).conj())).multiplyJ();
+        dSfDva = IfMatrix.conj().multiply(VNbrNbF).subtract(VfMatrix.multiply(Yf.multiply(VpfMatrix).conj())).multiplyJ();
 
-        dSfDvm = VfMatrix.multiply(Yf.multiply(VnormMatrix).conj()).add(IfMatrix.conj().multiply(VNbrNbNormF));
+        dSfDvm = VfMatrix.multiply(Yf.multiply(VpfNormMatrix).conj()).add(IfMatrix.conj().multiply(VNbrNbNormF));
 
-        dStDva = ItMatrix.conj().multiply(VNbrNbT).subtract(VtMatrix.multiply(Yt.multiply(VMatrix).conj())).multiplyJ();
+        dStDva = ItMatrix.conj().multiply(VNbrNbT).subtract(VtMatrix.multiply(Yt.multiply(VpfMatrix).conj())).multiplyJ();
 
-        dStDvm = VtMatrix.multiply(Yt.multiply(VnormMatrix).conj()).add(ItMatrix.conj().multiply(VNbrNbNormT));
+        dStDvm = VtMatrix.multiply(Yt.multiply(VpfNormMatrix).conj()).add(ItMatrix.conj().multiply(VNbrNbNormT));
 
         Sf = Vf.hadamardMultiply(If.conj());
 
@@ -273,22 +689,22 @@ public class Estimator {
 
         ComplexMatrix Ibus;
 
-        V = powerSystem.getPowerFlow().getV();
+        Vpf = powerSystem.getPowerFlow().getV();
 
-        Ibus = powerSystem.getyMatrix().getYbus().multiply(V);
+        Ibus = powerSystem.getyMatrix().getYbus().multiply(Vpf);
 
-        Vnorm = computeVnorm(V);
+        VpfNorm = computeVnorm(Vpf);
 
-        VMatrix = expandVectorToDiagonalMatrix(V);
+        VpfMatrix = expandVectorToDiagonalMatrix(Vpf);
 
         Ibus = expandVectorToDiagonalMatrix(Ibus);
 
-        VnormMatrix = expandVectorToDiagonalMatrix(Vnorm);
+        VpfNormMatrix = expandVectorToDiagonalMatrix(VpfNorm);
 
-        dSbDvm = VMatrix.multiply(powerSystem.getyMatrix().getYbus().multiply(VnormMatrix).conj())
-                .add(Ibus.conj().multiply(VnormMatrix));
+        dSbDvm = VpfMatrix.multiply(powerSystem.getyMatrix().getYbus().multiply(VpfNormMatrix).conj())
+                .add(Ibus.conj().multiply(VpfNormMatrix));
 
-        dSbDva = VMatrix.multiplyJ().multiply(Ibus.subtract(powerSystem.getyMatrix().getYbus().multiply(VMatrix)).conj());
+        dSbDva = VpfMatrix.multiplyJ().multiply(Ibus.subtract(powerSystem.getyMatrix().getYbus().multiply(VpfMatrix)).conj());
 
     }
 
@@ -362,7 +778,7 @@ public class Estimator {
     }
 
     //    input are external numbers, will convert to internal numbering
-    private ComplexMatrix getVft(int[] ij, ComplexMatrix VMatrix) {
+    private ComplexMatrix getVft(int[] ijExternal, ComplexMatrix VMatrix, Map<Integer, Integer> TOI) {
 
         if (VMatrix.getCols() != 1) {
 
@@ -372,7 +788,7 @@ public class Estimator {
 
         }
 
-        int n = ij.length;
+        int n = ijExternal.length;
 
         Matrix vftR = new Basic1DMatrix(n, 1);
 
@@ -382,7 +798,7 @@ public class Estimator {
 
         for (int i = 0; i < n; i++) {
 
-            internalIdx = powerSystem.getMpData().getBusData().getTOI().get(ij[i]) - 1;
+            internalIdx = TOI.get(ijExternal[i]) - 1;
 
             vftR.set(i, 0, VMatrix.getR().get(internalIdx, 0));
 

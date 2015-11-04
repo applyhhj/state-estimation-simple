@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public class Utils {
 
+    public static IntComparator intComparator = new IntComparator();
+
     public static Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static List<String> readStringFromFile(String FILE_IN) {
@@ -350,6 +352,73 @@ public class Utils {
     }
 
     public static class MatrixExtend {
+
+        public static Matrix toMeasurementVector(int nz_, int nbr_, int nb_,
+                                                 ComplexMatrix sf_, ComplexMatrix st_, ComplexMatrix sbus, Matrix Va_, Matrix Vm_) {
+
+            Matrix ret = Matrix.zero(nz_, 1);
+
+            ret = insertMatrix(ret, sf_.getR());
+
+            ret = insertMatrix(ret, st_.getR(), nbr_, 0);
+
+            ret = insertMatrix(ret, sbus.getR(), 2 * nbr_, 0);
+
+            ret = insertMatrix(ret, Va_, 2 * nbr_ + nb_, 0);
+
+            ret = insertMatrix(ret, sf_.getI(), 2 * (nbr_ + nb_), 0);
+
+            ret = insertMatrix(ret, st_.getI(), 3 * nbr_ + 2 * nb_, 0);
+
+            ret = insertMatrix(ret, sbus.getI(), 4 * nbr_ + 2 * nb_, 0);
+
+            ret = insertMatrix(ret, Vm_, 4 * nbr_ + 3 * nb_, 0);
+
+            return ret;
+
+        }
+
+        public static Matrix excludeMatrix(Matrix thisMatrix, List<Integer> excRows, List<Integer> excCols) {
+
+            Matrix ret = thisMatrix.copy();
+
+            int ern, ecn;
+
+            if (excRows == null) {
+
+                ern = 0;
+
+            } else {
+
+                ern = excRows.size();
+
+            }
+
+            if (excCols == null) {
+
+                ecn = 0;
+
+            } else {
+
+                ecn = excCols.size();
+
+            }
+
+            for (int i = 0; i < ern; i++) {
+
+                ret.removeRow(excRows.get(i));
+
+            }
+
+            for (int i = 0; i < ecn; i++) {
+
+                ret.removeColumn(excCols.get(i));
+
+            }
+
+            return ret;
+
+        }
 
         public static Matrix insertMatrix(Matrix thisMatrix, Matrix that) {
 

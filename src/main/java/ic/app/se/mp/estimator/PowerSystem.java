@@ -4,6 +4,7 @@ import ic.app.se.mp.data.MPData;
 import ic.app.se.mp.data.PowerFlow;
 import ic.app.se.mp.data.YMatrix;
 import ic.app.se.simple.common.ComplexMatrix;
+import ic.app.se.simple.common.EstimationOption;
 import org.la4j.Matrix;
 
 /**
@@ -25,9 +26,13 @@ public class PowerSystem {
 
     private ComplexMatrix state;
 
+    private EstimationOption option;
+
     public PowerSystem(String mpCaseDataPath) {
 
         this.mpCaseDataPath = mpCaseDataPath;
+
+        option = new EstimationOption();
 
         initData();
 
@@ -35,7 +40,7 @@ public class PowerSystem {
 
         this.measureSystem = new MeasureSystem(this);
 
-//        flat start
+//        flat start, include reference bus
         state = new ComplexMatrix(Matrix.unit(mpData.getBusData().getN(), 1), Matrix.zero(mpData.getBusData().getN(), 1));
 
     }
@@ -66,4 +71,15 @@ public class PowerSystem {
         return estimator;
     }
 
+    public MeasureSystem getMeasureSystem() {
+        return measureSystem;
+    }
+
+    public ComplexMatrix getState() {
+        return state;
+    }
+
+    public EstimationOption getOption() {
+        return option;
+    }
 }

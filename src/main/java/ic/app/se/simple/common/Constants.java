@@ -4,6 +4,8 @@ package ic.app.se.simple.common;
  * Created by hjh on 15-10-9.
  */
 public abstract class Constants {
+    public static final double E = 1e-5;
+
     public abstract class CDF{
         public static final String BUS_SECTION ="BUS DATA FOLLOWS";
         public static final String BRANCH_SECTION ="BRANCH DATA FOLLOWS";
@@ -44,6 +46,8 @@ public abstract class Constants {
         public static final double ERR_REC =10;
         public static final double ERR_THETA=1e-3;
         public static final double ERR_V=1e-2;
+
+        public static final double TOL = 1e-4;
 
     }
 }

@@ -5,6 +5,10 @@ import org.la4j.matrix.dense.Basic1DMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+import static ic.app.se.simple.common.Utils.MatrixExtend.excludeMatrix;
+
 /**
  * Created by Administrator on 2015/11/2.
  */
@@ -100,6 +104,7 @@ public class ComplexMatrix {
 
     }
 
+    //    similar to dot product in matlab
     public ComplexMatrix hadamardMultiply(ComplexMatrix matrix) {
 
         if (cols != matrix.getCols() || rows != matrix.getRows()) {
@@ -164,6 +169,60 @@ public class ComplexMatrix {
 
     }
 
+    public Matrix angle() {
+
+        Matrix ret = Matrix.zero(rows, cols);
+
+        double real, imag, angle;
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < cols; j++) {
+
+                real = R.get(i, j);
+
+                imag = I.get(i, j);
+
+                if (real == 0) {
+
+                    if (imag > 0) {
+
+                        angle = Math.PI / 2;
+
+                    } else if (imag < 0) {
+
+                        angle = -Math.PI / 2;
+
+                    } else {
+
+                        logger.warn("Both real and imaginary part are zero, set angle to 0.");
+
+                        angle = 0;
+
+                    }
+
+                } else {
+
+                    angle = Math.atan(imag / real);
+
+                }
+
+                ret.set(i, j, angle);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public ComplexMatrix copy() {
+
+        return new ComplexMatrix(R.copy(), I.copy());
+
+    }
+
     public void print(String title) {
 
         System.out.print("\n" + title + "\n");
@@ -175,6 +234,12 @@ public class ComplexMatrix {
     public void print() {
 
         System.out.print("Real part:\n" + R.toString() + "\n" + "Imaginary part:\n" + I.toString());
+
+    }
+
+    public ComplexMatrix excludeSubMatrix(List<Integer> rows, List<Integer> cols) {
+
+        return new ComplexMatrix(excludeMatrix(R, rows, cols), excludeMatrix(I, rows, cols));
 
     }
 
