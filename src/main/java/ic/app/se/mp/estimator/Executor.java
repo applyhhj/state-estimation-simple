@@ -1,5 +1,7 @@
 package ic.app.se.mp.estimator;
 
+import ic.app.se.simple.common.EstimationOption;
+
 import static ic.app.se.simple.common.Utils.isLinux;
 
 /**
@@ -21,7 +23,13 @@ public class Executor {
 
         }
 
-        PowerSystem powerSystem = new PowerSystem(fpath);
+        EstimationOption option = new EstimationOption();
+
+        option.setVerbose(false);
+
+        PowerSystem powerSystem = new PowerSystem(fpath, option);
+
+        powerSystem.run();
 
         System.out.print("Done!\n");
 

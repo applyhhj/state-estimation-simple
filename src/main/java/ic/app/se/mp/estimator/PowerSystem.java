@@ -28,11 +28,19 @@ public class PowerSystem {
 
     private EstimationOption option;
 
-    public PowerSystem(String mpCaseDataPath) {
+    public PowerSystem(String mpCaseDataPath, EstimationOption option) {
+
+        if (option != null) {
+
+            this.option = option;
+
+        } else {
+
+            this.option = new EstimationOption();
+
+        }
 
         this.mpCaseDataPath = mpCaseDataPath;
-
-        option = new EstimationOption();
 
         initData();
 
@@ -45,6 +53,12 @@ public class PowerSystem {
 
     }
 
+    public PowerSystem(String mpCaseDataPath) {
+
+        this(mpCaseDataPath, null);
+
+    }
+
     private void initData() {
 
         mpData = new MPData(mpCaseDataPath);
@@ -52,6 +66,14 @@ public class PowerSystem {
         yMatrix = new YMatrix(mpData);
 
         powerFlow = new PowerFlow(mpData, yMatrix);
+
+    }
+
+    public void run() {
+
+        measureSystem.measure();
+
+        estimator.estimate();
 
     }
 

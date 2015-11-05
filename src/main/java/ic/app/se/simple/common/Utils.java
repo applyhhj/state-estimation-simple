@@ -378,6 +378,7 @@ public class Utils {
 
         }
 
+        //        WARNNING: all excluded row indices and excluded column indices should be sorted in ascending order!!
         public static Matrix excludeMatrix(Matrix thisMatrix, List<Integer> excRows, List<Integer> excCols) {
 
             Matrix ret = thisMatrix.copy();
@@ -404,15 +405,23 @@ public class Utils {
 
             }
 
+            int removed = 0;
+
             for (int i = 0; i < ern; i++) {
 
-                ret.removeRow(excRows.get(i));
+                ret = ret.removeRow(excRows.get(i) - removed);
+
+                removed++;
 
             }
 
+            removed = 0;
+
             for (int i = 0; i < ecn; i++) {
 
-                ret.removeColumn(excCols.get(i));
+                ret = ret.removeColumn(excCols.get(i) - removed);
+
+                removed++;
 
             }
 

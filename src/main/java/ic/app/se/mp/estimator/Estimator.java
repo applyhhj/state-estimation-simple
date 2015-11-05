@@ -77,8 +77,6 @@ public class Estimator {
 
         HF = composeFullHMatrix();
 
-        WInv = powerSystem.getMeasureSystem().getWInv();
-
         converged = false;
 
         oneBadAtATime = true;
@@ -89,11 +87,13 @@ public class Estimator {
 
         badDataThreshold = 6.25;
 
-//        print();
+        print();
 
     }
 
     public void estimate() {
+
+        WInv = powerSystem.getMeasureSystem().getWInv();
 
         int ibad = 1;
 
@@ -170,7 +170,7 @@ public class Estimator {
             }
 
 //            check bad data
-            Matrix WW = new GaussJordanInverter(WWInv).inverse();
+            Matrix WW = computeWW(WWInv);
 
             Matrix HTWHInv = new GaussJordanInverter(HH.transpose().multiply(WWInv).multiply(HH)).inverse();
 
@@ -212,6 +212,41 @@ public class Estimator {
 
     }
 
+    private Matrix computeWW(Matrix WWInv) {
+
+        Matrix ret = Matrix.zero(WWInv.rows(), WWInv.columns());
+
+        if (WWInv.rows() != WWInv.columns()) {
+
+            logger.error("Not a square matrix can not inverse!");
+
+            return null;
+
+        }
+
+        double a;
+
+        for (int i = 0; i < WWInv.columns(); i++) {
+
+            a = WWInv.get(i, i);
+
+            if (a == 0) {
+
+                logger.error("Not a full rank matrix, can not inverse!");
+
+                return null;
+
+            }
+
+            ret.set(i, i, 1 / WWInv.get(i, i));
+
+        }
+
+        return ret;
+
+    }
+
+    //    WARNNING: all exclude should be sorted in ascending order
     private void updateZExclude(Map<Integer, Double> baddata, List<Integer> zExclude) {
 
         List<Integer> badids = new ArrayList<Integer>();
@@ -252,9 +287,13 @@ public class Estimator {
 
                         zExclude.add(i, badidx);
 
+                        break;
+
                     }
 
                 }
+
+                i++;
 
             }
 
@@ -356,45 +395,29 @@ public class Estimator {
 
     private Matrix getDdxa(Vector dx) {
 
-        int nb = powerSystem.getMpData().getBusData().getN();
+        if (dx.length() % 2 != 0) {
 
-        Matrix dxa = dx.sliceLeft(nb - 1).toColumnMatrix();
+            logger.error("Number of state variable should be even!");
 
-        List<Integer> exclude = new ArrayList<Integer>();
-
-        for (Integer excIdx : powerSystem.getMeasureSystem().getStateExcludeIds()) {
-
-            if (excIdx < nb) {
-
-                exclude.add(excIdx);
-
-            }
+            return null;
 
         }
 
-        return excludeMatrix(dxa, exclude, null);
+        return dx.sliceLeft(dx.length() / 2).toColumnMatrix();
 
     }
 
     private Matrix getDdxm(Vector dx) {
 
-        int nb = powerSystem.getMpData().getBusData().getN();
+        if (dx.length() % 2 != 0) {
 
-        Matrix dxm = dx.sliceRight(nb).toColumnMatrix();
+            logger.error("Number of state variable should be even!");
 
-        List<Integer> exclude = new ArrayList<Integer>();
-
-        for (Integer excIdx : powerSystem.getMeasureSystem().getStateExcludeIds()) {
-
-            if (excIdx >= nb) {
-
-                exclude.add(excIdx - nb);
-
-            }
+            return null;
 
         }
 
-        return excludeMatrix(dxm, exclude, null);
+        return dx.sliceRight(dx.length() / 2).toColumnMatrix();
 
     }
 
@@ -475,6 +498,12 @@ public class Estimator {
     }
 
     public void print() {
+
+        if (!powerSystem.getOption().isVerbose()) {
+
+            return;
+
+        }
 
         dSbDvm.print("dSbus_dVm");
 

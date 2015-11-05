@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static ic.app.se.simple.common.Utils.MatrixExtend.insertMatrix;
 import static ic.app.se.simple.common.Utils.MatrixExtend.toMeasurementVector;
 
 /**
@@ -107,7 +108,11 @@ public class MeasureSystem {
 
     public void print() {
 
-        System.out.print("\nReal measurement:\n" + zreal.toString());
+        if (powerSystem.getOption().isVerbose()) {
+
+            System.out.print("\nReal measurement:\n" + zreal.toString());
+
+        }
 
     }
 
@@ -121,23 +126,23 @@ public class MeasureSystem {
 
         sigma = Matrix.zero(nz, 1);
 
-        sigma.insert(sf.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)));
+        sigma = insertMatrix(sigma, sf.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)));
 
-        sigma.insert(st.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)), nbr, 0);
+        sigma = insertMatrix(sigma, st.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)), nbr, 0);
 
-        sigma.insert(sbus.abs().multiply(0.02).add(Matrix.unit(nb, 1).multiply(0.0052).multiply(fullscale)), 2 * nbr, 0);
+        sigma = insertMatrix(sigma, sbus.abs().multiply(0.02).add(Matrix.unit(nb, 1).multiply(0.0052).multiply(fullscale)), 2 * nbr, 0);
 
-        sigma.insert(Matrix.unit(nb, 1).multiply(0.2 * Math.PI / 180 * 3), 2 * nbr + nb, 0);
+        sigma = insertMatrix(sigma, Matrix.unit(nb, 1).multiply(0.2 * Math.PI / 180 * 3), 2 * nbr + nb, 0);
 
-        sigma.insert(sf.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)), 2 * (nbr + nb), 0);
+        sigma = insertMatrix(sigma, sf.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)), 2 * (nbr + nb), 0);
 
-        sigma.insert(st.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)), 3 * nbr + 2 * nb, 0);
+        sigma = insertMatrix(sigma, st.abs().multiply(0.02).add(Matrix.unit(nbr, 1).multiply(0.0052).multiply(fullscale)), 3 * nbr + 2 * nb, 0);
 
-        sigma.insert(sbus.abs().multiply(0.02).add(Matrix.unit(nb, 1).multiply(0.0052).multiply(fullscale)), 4 * nbr + 2 * nb, 0);
+        sigma = insertMatrix(sigma, sbus.abs().multiply(0.02).add(Matrix.unit(nb, 1).multiply(0.0052).multiply(fullscale)), 4 * nbr + 2 * nb, 0);
 
-        sigma.insert(Vpfm.multiply(0.02).add(Matrix.unit(nb, 1).multiply(1.1 * 0.0052)), 4 * nbr + 3 * nb, 0);
+        sigma = insertMatrix(sigma, Vpfm.multiply(0.02).add(Matrix.unit(nb, 1).multiply(1.1 * 0.0052)), 4 * nbr + 3 * nb, 0);
 
-        sigma.multiply(1 / 3.0);
+        sigma = sigma.multiply(1 / 3.0);
 
     }
 

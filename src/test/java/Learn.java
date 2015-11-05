@@ -21,6 +21,11 @@ public class Learn {
 
         }
 
+
+        System.out.print(subMatrix.toString() + "\n");
+
+        subMatrix = subMatrix.removeRow(3);
+
         System.out.print(subMatrix.toString() + "\n");
 
 //        Matrix newMatrix = matrix.insert(subMatrix, 2, 0, subMatrix.rows(), subMatrix.columns());
