@@ -1,6 +1,3 @@
-import org.la4j.Matrix;
-import org.la4j.matrix.sparse.CRSMatrix;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,26 +8,9 @@ public class Learn {
 
     public static void main(String[] args) {
 
-        Matrix matrix = new CRSMatrix(10, 5);
-
-        Matrix subMatrix = new CRSMatrix(7, 2);
-
-        for (int i = 0; i < subMatrix.rows(); i++) {
-
-            subMatrix.set(i, 0, i + 1);
-
-        }
-
-
-        System.out.print(subMatrix.toString() + "\n");
-
-        subMatrix = subMatrix.removeRow(3);
-
-        System.out.print(subMatrix.toString() + "\n");
-
-//        Matrix newMatrix = matrix.insert(subMatrix, 2, 0, subMatrix.rows(), subMatrix.columns());
-
-//        System.out.print(newMatrix.toString() + "\n");
+        // TODO Auto-generated method stub
+        Test tt = new Test();
+        tt.add(2);//和为2,可变参数长度可以为0个
 
         List<Integer> tst = new ArrayList<Integer>();
 
@@ -39,6 +19,18 @@ public class Learn {
         tst.add(3);
 
         tst.add(5);
+
+        int[] data = new int[3];
+
+        data[0] = 1;
+
+        data[1] = 3;
+
+        data[2] = 5;
+
+        tt.add(data);
+
+
 
         System.out.print(tst.size());
 
@@ -50,6 +42,19 @@ public class Learn {
     public static void updateList(List<Integer> in) {
 
         in.add(100);
+
+    }
+
+    public static class Test {
+        //求传入参数的和的方法
+        public void add(int... arr)//可变参数
+        {
+            int sum = 0;//先把第一个参数的值复制给sum
+            for (int i = 0; i < arr.length; ++i) {
+                sum += arr[i];
+            }
+            System.out.println(sum);
+        }
 
     }
 }

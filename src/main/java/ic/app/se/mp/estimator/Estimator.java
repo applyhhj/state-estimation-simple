@@ -79,7 +79,7 @@ public class Estimator {
 
         converged = false;
 
-        oneBadAtATime = true;
+        oneBadAtATime = false;
 
         maxItBadData = 50;
 
@@ -87,7 +87,7 @@ public class Estimator {
 
         badDataThreshold = 6.25;
 
-        print();
+//        print();
 
     }
 
@@ -101,9 +101,19 @@ public class Estimator {
 
         Matrix zest = computeEstimatedMeasurement(powerSystem);
 
-        Matrix deltz = powerSystem.getMeasureSystem().getZreal().subtract(zest);
+        Matrix deltz = powerSystem.getMeasureSystem().getZm().subtract(zest);
 
         Matrix normF = deltz.transpose().multiply(WInv).multiply(deltz);
+
+        if (powerSystem.getOption().isVerbose()) {
+
+            System.out.printf("\n it     norm( F )       step size");
+
+            System.out.printf("\n----  --------------  --------------");
+
+            System.out.printf("\n%3d    %10.3f      %10.3f", 0, normF.get(0, 0), 0.0);
+
+        }
 
         while (!converged && ibad < maxItBadData) {
 
@@ -141,7 +151,7 @@ public class Estimator {
 
                 zest = computeEstimatedMeasurement(powerSystem);
 
-                deltz = powerSystem.getMeasureSystem().getZreal().subtract(zest);
+                deltz = powerSystem.getMeasureSystem().getZm().subtract(zest);
 
                 ddeltz = getDdeltz(deltz);
 
@@ -149,27 +159,34 @@ public class Estimator {
 
                 Matrix dx2 = dx.toRowMatrix().multiply(dx).toRowMatrix();
 
+                if (powerSystem.getOption().isVerbose()) {
+
+                    System.out.printf("\n%3d    %10.3f      %10.3f", i, normF.get(0, 0), dx2.get(0, 0));
+
+                }
+
                 if (dx2.get(0, 0) < Constants.ESTIMATOR.TOL) {
 
                     converged = true;
 
                     if (powerSystem.getOption().isVerbose()) {
 
-                        logger.info("State estimator converged in {} iterations.", i);
+                        System.out.printf("\nState estimator converged in %d iterations.", i);
 
                     }
 
                 }
 
+
             }
 
             if (!converged && powerSystem.getOption().isVerbose()) {
 
-                logger.info("State estimator did not converged in {} iterations.", i);
+                System.out.printf("\nState estimator did not converged in %d iterations.", i);
 
             }
 
-//            check bad data
+//            checking bad data
             Matrix WW = computeWW(WWInv);
 
             Matrix HTWHInv = new GaussJordanInverter(HH.transpose().multiply(WWInv).multiply(HH)).inverse();
@@ -853,5 +870,9 @@ public class Estimator {
 
     public ComplexMatrix getSt() {
         return St;
+    }
+
+    public boolean isConverged() {
+        return converged;
     }
 }

@@ -1,7 +1,3 @@
-import java.util.List;
-
-import static ic.app.se.simple.common.Utils.readStringFromFile;
-
 /**
  * Created by Administrator on 2015/10/29.
  */
@@ -9,13 +5,11 @@ public class TestPTI {
 
     public static void main(String[] args) {
 
-        List<String> strings = readStringFromFile("F:\\projects\\data\\powersystem\\300bus\\ieee300pti.txt");
+        double[][] arr2d = new double[10][1];
 
-        for (int i = 0; i < strings.size(); i++) {
+        System.out.print("rows " + arr2d.length);
 
-            System.out.print(strings.get(i) + "\n");
-
-        }
+        System.out.print("\ncols " + arr2d[0].length);
 
     }
 

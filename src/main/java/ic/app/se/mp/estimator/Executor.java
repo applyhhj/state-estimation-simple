@@ -9,7 +9,7 @@ import static ic.app.se.simple.common.Utils.isLinux;
  */
 public class Executor {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         String fpath;
 
@@ -27,9 +27,27 @@ public class Executor {
 
         option.setVerbose(false);
 
+        option.setDebug(true);
+
         PowerSystem powerSystem = new PowerSystem(fpath, option);
 
-        powerSystem.run();
+        int i = 0;
+
+        long start;
+
+        while (i++ < 3) {
+
+            start = System.currentTimeMillis();
+
+            powerSystem.run();
+
+            System.out.printf("\nEstimate %d duration: %d ms", i, System.currentTimeMillis() - start);
+
+            powerSystem.printStateInExternalInPolarDegree();
+
+            Thread.sleep(500);
+
+        }
 
         System.out.print("Done!\n");
 

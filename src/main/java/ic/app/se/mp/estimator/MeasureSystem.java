@@ -5,10 +5,7 @@ import ic.app.se.simple.common.Utils;
 import org.la4j.Matrix;
 import org.la4j.matrix.sparse.CRSMatrix;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static ic.app.se.simple.common.Utils.MatrixExtend.insertMatrix;
 import static ic.app.se.simple.common.Utils.MatrixExtend.toMeasurementVector;
@@ -102,7 +99,7 @@ public class MeasureSystem {
 
         computeExcludeIndices();
 
-        print();
+//        print();
 
     }
 
@@ -157,6 +154,12 @@ public class MeasureSystem {
     }
 
     private double getMeasureI(int i) {
+
+        if (powerSystem.getOption().isDebug()) {
+
+            return zreal.get(i, 0);
+
+        }
 
         return random.nextGaussian() * sigma.get(i, 0) + zreal.get(i, 0);
 
@@ -258,11 +261,11 @@ public class MeasureSystem {
 
         }
 
-        zExcludeIds.sort(Utils.intComparator);
+        Collections.sort(zExcludeIds, Utils.intComparator);
 
-        stateExcludeIds.sort(Utils.intComparator);
+        Collections.sort(stateExcludeIds, Utils.intComparator);
 
-        VbusExcludeIds.sort(Utils.intComparator);
+        Collections.sort(VbusExcludeIds, Utils.intComparator);
 
     }
 
@@ -290,12 +293,15 @@ public class MeasureSystem {
         return WInv;
     }
 
-    public Matrix getZreal() {
-        return zreal;
-    }
+//    public Matrix getZreal() {
+//        return zreal;
+//    }
 
     public List<Integer> getVbusExcludeIds() {
         return VbusExcludeIds;
     }
 
+    public Matrix getZm() {
+        return zm;
+    }
 }

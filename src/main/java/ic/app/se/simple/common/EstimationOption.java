@@ -7,10 +7,23 @@ public class EstimationOption {
 
     private boolean verbose;
 
+    private boolean debug;
+
     public EstimationOption() {
 
         verbose = true;
 
+        debug = false;
+
+
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     public boolean isVerbose() {

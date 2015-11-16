@@ -47,7 +47,7 @@ public abstract class Constants {
         public static final double ERR_THETA=1e-3;
         public static final double ERR_V=1e-2;
 
-        public static final double TOL = 1e-4;
+        public static final double TOL = 1e-8;
 
     }
 }

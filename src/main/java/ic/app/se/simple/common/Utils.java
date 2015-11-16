@@ -354,7 +354,8 @@ public class Utils {
     public static class MatrixExtend {
 
         public static Matrix toMeasurementVector(int nz_, int nbr_, int nb_,
-                                                 ComplexMatrix sf_, ComplexMatrix st_, ComplexMatrix sbus, Matrix Va_, Matrix Vm_) {
+                                                 ComplexMatrix sf_, ComplexMatrix st_, ComplexMatrix sbus,
+                                                 Matrix Va_, Matrix Vm_) {
 
             Matrix ret = Matrix.zero(nz_, 1);
 
